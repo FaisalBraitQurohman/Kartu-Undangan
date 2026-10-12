@@ -260,11 +260,6 @@
   outline: 2px solid #9a744b;
   outline-offset: 6px;
 }
-@media (min-width: 1520px) {
-  .editorial-scene {
-    right: calc((1280px - 100vw) / 2);
-  }
-}
 @media (min-width: 761px) and (max-width: 1100px) {
   .editorial-hero-inner {
     width: calc(100% - 48px);
