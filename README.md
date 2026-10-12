@@ -26,6 +26,12 @@ From a fresh checkout with no `.env` or `.env.local`:
 
 ```sh
 npm ci
+npm run local:db
+```
+
+Keep that database terminal open. In a second terminal:
+
+```sh
 npm run local:setup
 npm run dev
 ```

@@ -53,15 +53,51 @@ async function isPortFree(port) {
 async function main() {
   if (!(await exists(cli))) throw new Error("Jalankan npm ci terlebih dahulu.");
   if (process.argv.includes("--stop") || process.argv.includes("--start")) {
-    if (!(await exists(statePath)))
-      throw new Error(
-        "Belum ada database lokal yang dibuat oleh local:setup di folder ini.",
-      );
-    const state = JSON.parse(await readFile(statePath, "utf8"));
-    if (!/^undangkita-local(?:-[a-z0-9]+)?$/.test(state.name))
+    const recorded = await exists(statePath);
+    if (!recorded && process.argv.includes("--stop"))
+      throw new Error("Belum ada database lokal yang dicatat di folder ini.");
+    const state = recorded
+      ? JSON.parse(await readFile(statePath, "utf8"))
+      : {
+          name: process.env.LOCAL_DATABASE_NAME || "undangkita-local",
+          dbPort: Number(process.env.LOCAL_DB_PORT || 51421),
+        };
+    if (
+      !/^undangkita-local(?:-[a-z0-9]+)?$/.test(state.name) ||
+      !Number.isInteger(state.dbPort) ||
+      state.dbPort < 1025 ||
+      state.dbPort > 65534
+    )
       throw new Error("Metadata database lokal tidak valid.");
     const action = process.argv.includes("--stop") ? "stop" : "start";
-    await run(cli, ["dev", action, state.name]);
+    if (action === "start") {
+      for (const port of [state.dbPort - 1, state.dbPort, state.dbPort + 1])
+        if (!(await isPortFree(port)))
+          throw new Error(
+            `Port ${port} digunakan. Database mungkin sudah aktif; biarkan terminal database terbuka.`,
+          );
+      if (!recorded) {
+        await mkdir(resolve(root, ".local"), { recursive: true });
+        await writeFile(statePath, JSON.stringify(state) + "\n", {
+          flag: "wx",
+          mode: 0o600,
+        });
+      }
+      console.log(
+        `Database development memakai port ${state.dbPort}. Biarkan terminal ini terbuka; jalankan local:setup dari terminal lain.`,
+      );
+      await run(cli, [
+        "dev",
+        "--name",
+        state.name,
+        "--port",
+        String(state.dbPort - 1),
+        "--db-port",
+        String(state.dbPort),
+        "--shadow-db-port",
+        String(state.dbPort + 1),
+      ]);
+    } else await run(cli, ["dev", "stop", state.name]);
     console.log(
       `Database lokal ${action === "stop" ? "dihentikan" : "dimulai"}. Data tetap tersimpan.`,
     );
@@ -74,8 +110,13 @@ async function main() {
     throw new Error(
       "Konfigurasi environment sudah ada dan tidak ditimpa. Gunakan README untuk setup manual, atau local:db untuk memulai database yang sudah dibuat.",
     );
-  const dbPort = Number(process.env.LOCAL_DB_PORT || 51421);
-  const name = process.env.LOCAL_DATABASE_NAME || "undangkita-local";
+  if (!(await exists(statePath)))
+    throw new Error(
+      "Buka terminal lain dan jalankan npm run local:db terlebih dahulu.",
+    );
+  const state = JSON.parse(await readFile(statePath, "utf8"));
+  const dbPort = state.dbPort;
+  const name = state.name;
   if (
     !Number.isInteger(dbPort) ||
     dbPort < 1025 ||
@@ -83,45 +124,12 @@ async function main() {
     !/^undangkita-local(?:-[a-z0-9]+)?$/.test(name)
   )
     throw new Error("Nama/port database lokal tidak valid.");
-  const ownsService = await exists(statePath);
-  if (ownsService) {
-    const state = JSON.parse(await readFile(statePath, "utf8"));
-    if (state.name !== name || state.dbPort !== dbPort)
-      throw new Error(
-        "Metadata setup lama memakai nama/port berbeda. Gunakan konfigurasi sebelumnya.",
-      );
-  } else {
-    for (const port of [dbPort - 1, dbPort, dbPort + 1]) {
-      if (!(await isPortFree(port)))
-        throw new Error(
-          `Port ${port} sedang digunakan. Pilih LOCAL_DB_PORT lain atau gunakan database lokal yang sudah dibuat.`,
-        );
-    }
-  }
+  if (await isPortFree(dbPort))
+    throw new Error(
+      "Database belum aktif. Jalankan npm run local:db di terminal lain dan biarkan terbuka.",
+    );
   console.log("Menyiapkan Prisma Client...");
   await run(cli, ["generate"]);
-  console.log("Menyiapkan Prisma Postgres lokal untuk development...");
-  if (!ownsService)
-    await run(cli, [
-      "dev",
-      "--name",
-      name,
-      "--port",
-      String(dbPort - 1),
-      "--db-port",
-      String(dbPort),
-      "--shadow-db-port",
-      String(dbPort + 1),
-      "--detach",
-    ]);
-  await mkdir(resolve(root, ".local"), { recursive: true });
-  if (ownsService && (await isPortFree(dbPort)))
-    await run(cli, ["dev", "start", name]);
-  if (!ownsService)
-    await writeFile(statePath, JSON.stringify({ name, dbPort }) + "\n", {
-      flag: "wx",
-      mode: 0o600,
-    });
   // This connection belongs to Prisma's loopback-only development server.
   // It is never used for deployment or a production database.
   const databaseUrl = `postgres://postgres:postgres@localhost:${dbPort}/template1?sslmode=disable&connection_limit=1&statement_cache_size=0&pgbouncer=true&connect_timeout=10`;
