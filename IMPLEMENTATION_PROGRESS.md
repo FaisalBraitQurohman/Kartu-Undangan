@@ -18,7 +18,7 @@ Final local readiness checks:
 - The development app returned HTTP 200 for home/login, displayed its database catalog, and its private invitation API returned HTTP 401 to an anonymous request.
 - Production dependency audit returned zero vulnerabilities. The previously recorded five development-tool advisories remain.
 
-GitHub Actions workflow is implemented with pinned official action commits, PostgreSQL 17 health checks, Node 24, required database suites and failure artifacts. GitHub authorization now includes the `workflow` scope. Branch `feat/local-readiness` is published in draft [PR #4](https://github.com/FaisalBraitQurohman/Kartu-Undangan/pull/4), targeting staging. Hosted CI has been triggered; its result is pending. No merge or production deployment has been performed.
+GitHub Actions workflow is implemented with pinned official action commits, PostgreSQL 17 health checks, Node 24, required database suites and failure artifacts. GitHub authorization now includes the `workflow` scope. Branch `feat/local-readiness` is published in draft [PR #4](https://github.com/FaisalBraitQurohman/Kartu-Undangan/pull/4), targeting staging. Hosted CI [run 38242382605](https://github.com/FaisalBraitQurohman/Kartu-Undangan/actions/runs/38242382605) passed for commit `28ab03a`: 36 unit tests, 14 PostgreSQL 17 integration tests, 6 Chromium workflows, lint, typecheck and production build on Node 24 / Ubuntu 24.04. No merge or production deployment has been performed.
 
 See README.md for the two-terminal local startup and docs/DEPLOYMENT.md for preview requirements. Super-board remains unused.
 
