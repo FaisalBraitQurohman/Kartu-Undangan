@@ -2,7 +2,7 @@
 
 ## Status — 12 October 2026
 
-The application is implemented locally from the supplied UndangKita specification. No initial application commit, push or production deployment has been performed. Production acceptance still requires configured services and verification against those services.
+The application is implemented from the supplied UndangKita specification. Initial commit `2482671` is pushed to GitHub on main, and staging has been created for super-board work. No production deployment has been performed. Production acceptance still requires configured services and verification against those services.
 
 | Phase | State |
 | --- | --- |
@@ -43,4 +43,4 @@ No real payment, live email delivery, live media upload or production deployment
 
 ## Super-board
 
-The existing GitHub Project and tooling remain available. Onboarding is deferred at branch selection: the repository needs an initial commit on GitHub, completed branch/merge configuration, and actionable cards in Ready before workers can run. No autonomous board worker was started by this build.
+Onboarding is configured for GitHub Project “Kartu Undangan” #1 and base branch staging. Normal reviewed changes may merge automatically; money, authentication and Prisma schema/migration changes require a human. Database migration permission remains empty until a dedicated environment is configured. Sources are GitHub issues, past PRs and architecture. No autonomous board worker has been started.
