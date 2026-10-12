@@ -6,7 +6,7 @@ The application is implemented from the supplied UndangKita specification. Initi
 
 ## Accepted finish scope
 
-The user chose **ready to run locally and prepared for deployment**, with no external service accounts yet. That local target is implemented on branch `feat/local-readiness`. A real development database and private local verification/reset email delivery are configured; no default user account exists. External payments, Cloudinary uploads, hosted email, distributed limits and telemetry remain pending account configuration.
+The user chose **ready to run locally and prepared for deployment**, initially without external service accounts. That local target is implemented on branch `feat/local-readiness`. A real development database and private local verification/reset email delivery are configured; no default user account exists. Later authorized Vercel Preview setup has connected Neon, Upstash and Cloudinary as recorded below. External payments, hosted email and telemetry remain pending account configuration.
 
 Final local readiness checks:
 
@@ -24,7 +24,7 @@ See README.md for the two-terminal local startup and docs/DEPLOYMENT.md for prev
 
 ## Vercel setup — 12 October 2026
 
-The owner authorized Vercel setup. Project `undangkita` now has a protected Preview deployment, a dedicated Neon database with both migrations and four seeded templates, and Upstash Redis. Database and Redis health checks passed; the hosted homepage returned 200 and anonymous private invitation API returned 401. Preview secrets and its fixed origin are configured. Cloudinary API provisioning and ping succeeded; the owner confirmed the account claim and email verification. GitHub repository linking succeeded on retry, with main as the Production branch. The initial unexpected Production-target build was canceled; no production launch is complete. Domain/Resend, Midtrans, Cloudinary application upload acceptance, queue scheduling and production setup remain pending. Details are recorded in docs/DEPLOYMENT.md.
+The owner authorized Vercel setup. Project `undangkita` now has a protected Preview deployment, a dedicated Neon database with both migrations and four seeded templates, and Upstash Redis. Database and Redis health checks passed; the hosted homepage returned 200 and anonymous private invitation API returned 401. Preview secrets and its fixed origin are configured. Cloudinary API provisioning and ping succeeded; the owner confirmed the account claim and email verification. Live Preview login, free invitation creation, image upload, image delivery and media deletion passed; synthetic account/data/media were cleaned up. GitHub repository linking succeeded on retry, with main as the Production branch. GitHub CI and automatic Vercel Preview deployment passed on setup commit `463d69a`. The initial unexpected Production-target build was canceled; no production launch is complete. Domain/Resend, Midtrans, remaining media acceptance cases, queue scheduling and production setup remain pending. Details are recorded in docs/DEPLOYMENT.md.
 
 | Phase                         | State                                                                                                     |
 | ----------------------------- | --------------------------------------------------------------------------------------------------------- |

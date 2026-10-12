@@ -15,12 +15,14 @@ Configure the deployed origin, payment webhook and authenticated email queue sch
 - Applied both migrations to the new preview database and seeded four templates. Database query and Redis ping succeeded.
 - Configured Preview authentication/cron secrets, Redis variable aliases, sandbox payment mode and the fixed Preview origin. Secret values are excluded from source control.
 - Published a protected Preview at https://undangkita-preview-faisals-projects-bb6b5518.vercel.app. Initial homepage check returned 200; anonymous private invitation API returned 401 using authenticated Vercel deployment-protection access.
-- Provisioned a claimable Cloudinary environment, saved its credentials to Preview and confirmed its API ping. The owner confirmed claiming the account and verifying its email on 12 October 2026. Application upload/delete acceptance remains pending.
+- Provisioned a claimable Cloudinary environment, saved its credentials to Preview and confirmed its API ping. The owner confirmed claiming the account and verifying its email on 12 October 2026. Live Preview checks passed for login, free invitation creation, image upload, image delivery and media deletion. Synthetic account, free template grant, invitation and uploaded image were cleaned up; this does not verify registration email delivery.
 - The first deployment was unexpectedly classified as Production despite requesting Preview; it was canceled during build. Subsequent deployments are Preview. No production launch has been completed.
 
 GitHub repository linking initially returned a Vercel internal error; retry succeeded. The connected repository is `FaisalBraitQurohman/Kartu-Undangan`, with `main` as the Production branch. Feature/staging pushes trigger Preview builds. Only Preview services are configured; do not merge into/push main for launch until Production configuration and acceptance are complete.
 
-Pending: Cloudinary application upload/delete verification, domain ownership and Resend sender verification, Midtrans account/sandbox verification, email queue scheduler, and production environment configuration. Email delivery remains disabled until a verified sender is available; registration/email acceptance is not complete. The current Vercel Hobby plan permits personal non-commercial use only; commercial launch requires an appropriate plan ([Vercel Hobby documentation](https://vercel.com/docs/plans/hobby)).
+GitHub CI and the Vercel Preview check passed on setup commit `463d69a`; automatic GitHub Preview deployment was observed. The fixed Preview URL points to a deployment with Cloudinary configured. Source setup is included in draft PR #4, targeting staging.
+
+Pending: remaining media cases (audio, invalid/oversized files and quota checks against the live provider), domain ownership and Resend sender verification, Midtrans account/sandbox verification, email queue scheduler, and production environment configuration. Email delivery remains disabled until a verified sender is available; registration/email acceptance is not complete. The current Vercel Hobby plan permits personal non-commercial use only; commercial launch requires an appropriate plan ([Vercel Hobby documentation](https://vercel.com/docs/plans/hobby)).
 
 ## Environment and database
 
