@@ -161,8 +161,10 @@ with tempfile.TemporaryDirectory(prefix='super-board-codex-') as temporary:
                '--output-schema', str(schema_path), '--output-last-message', str(output), '-']
     env = platform.environment(root)
     if os.name == 'nt':
+        workspace = platform.lane_workspace(root, card['number'], args.lane)
+        prompt += f'\nWindows writable card directory: {workspace}. Use this exact path for your worktree; it is precreated but may be empty. Never delete and recreate its root during this lane.\n'
         command = ['codex', 'exec', '-C', str(root), '-c', 'approval_policy="never"']
-        command += platform.permission_arguments('super-board-lane', root, root, env, (git_dir, common_dir))
+        command += platform.permission_arguments('super-board-lane', root, root, env, (git_dir, common_dir), (workspace,))
         command += ['--output-schema', str(schema_path), '--output-last-message', str(output), '-']
     if model and model.strip():
         command[2:2] = ['-m', model]
