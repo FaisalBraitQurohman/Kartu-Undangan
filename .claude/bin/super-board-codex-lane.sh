@@ -9,6 +9,7 @@
 set -euo pipefail
 exec python3 - "${BASH_SOURCE[0]}" "$@" <<'PY'
 import argparse
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -43,6 +44,9 @@ for arg in raw:
         rest.append(arg)
 args = parser.parse_args(rest)
 script_path = Path(sys.argv[1]).resolve()
+platform_spec = importlib.util.spec_from_file_location('sb_platform', script_path.with_name('super-board-codex-platform.py'))
+platform = importlib.util.module_from_spec(platform_spec)
+platform_spec.loader.exec_module(platform)
 if args.lane == 'review' and not explicit:
     fail('Codex review refused: run must be started with explicit --codex; usage fallback cannot review.', 78)
 try:
@@ -102,6 +106,8 @@ Read .claude/skills/{skill}/SKILL.md and .claude/skills/super-board/references/r
 Source .claude/bin/super-board-gh-guard.sh and use its quota checks. Required GitHub reads go through .claude/bin/super-board-github-read.py; a read that misses its --kind shape exits 64 for that call only and prints the valid form, so fix the read. Check --check before new writes, migrations and merges; exit 79 means status=halted, no more GitHub calls, preserve claims/worktree/card/approval. Never retry a mutation.
 Use .claude/bin/super-board-card.sh for board reads/moves and .claude/bin/super-board-pr-body.sh for owned PR blocks; follow writing-standard.md and pr-author-notes.md.
 Use your own worktree under .claude/worktrees/; never edit the main checkout. Clean up on ordinary exit, preserve work on halt/interruption.
+On Windows, use Bash without -l (login shells can discard the launcher PATH). GitHub commands already have runtime authentication; never print tokens or credential environment. Helper -- arguments begin with issue/pr/api, never with an extra gh prefix.
+In Windows PowerShell use npm.cmd and npx.cmd; npm.ps1/npx.ps1 can be blocked by the sandbox user's execution policy. Do not change the machine execution policy. Bash may use npm/npx normally.
 Codex adaptation: do not launch Claude or other sub-agents. Perform preflight, classification, independent review and truth-check duties inline. This changes the execution host, never the evidence requirements, confidence threshold or merge policy.
 Return JSON: status=advanced|bounced|blocked|human-gate|failed|halted; column=current board column; detail=one line; prUrl/branch when known, otherwise null; priorFindings=review counts or null. A non-advanced exit ends this card's lane chain.
 '''
@@ -153,10 +159,15 @@ with tempfile.TemporaryDirectory(prefix='super-board-codex-') as temporary:
                '-c', 'permissions.super-board-lane.filesystem=' + grants,
                '-c', 'permissions.super-board-lane.network.enabled=true',
                '--output-schema', str(schema_path), '--output-last-message', str(output), '-']
+    env = platform.environment(root)
+    if os.name == 'nt':
+        command = ['codex', 'exec', '-C', str(root), '-c', 'approval_policy="never"']
+        command += platform.permission_arguments('super-board-lane', root, root, env, (git_dir, common_dir))
+        command += ['--output-schema', str(schema_path), '--output-last-message', str(output), '-']
     if model and model.strip():
         command[2:2] = ['-m', model]
     try:
-        child = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=sys.stderr, text=True)
+        child = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=sys.stderr, text=True, env=env)
         child.communicate(prompt)
         if child.returncode:
             result('halted' if child.returncode == 79 else 'failed', f'codex exec exited {child.returncode}')

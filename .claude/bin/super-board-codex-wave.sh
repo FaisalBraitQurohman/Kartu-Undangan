@@ -8,6 +8,7 @@
 set -euo pipefail
 exec python3 - "${BASH_SOURCE[0]}" "$@" <<'PY'
 import argparse
+import importlib.util
 from concurrent.futures import ThreadPoolExecutor
 import json
 import os
@@ -18,6 +19,7 @@ import sys
 import tempfile
 import threading
 import time
+from urllib.parse import urlsplit
 
 parser = argparse.ArgumentParser(description='Dispatch one explicitly opted-in Codex wave.')
 parser.add_argument('--config', required=True)
@@ -31,6 +33,9 @@ if len(codex) != 1 or (codex[0].startswith('--codex=') and not codex[0].partitio
 args = parser.parse_args([arg for arg in raw if arg not in codex])
 output_path = Path(args.output).resolve() if args.output else None
 launcher = Path(sys.argv[1]).resolve().with_name('super-board-codex-lane.sh')
+platform_spec = importlib.util.spec_from_file_location('sb_platform', launcher.with_name('super-board-codex-platform.py'))
+platform = importlib.util.module_from_spec(platform_spec)
+platform_spec.loader.exec_module(platform)
 try:
     config_path = Path(args.config).resolve()
     config = json.loads(config_path.read_text())
@@ -72,18 +77,12 @@ def cancel(signum, frame):
     with mutex:
         processes = list(active)
         for process in processes:
-            try:
-                os.killpg(process.pid, signal.SIGTERM)
-            except ProcessLookupError:
-                pass
+            platform.terminate_tree(process)
     # Process groups include the launcher, Codex, and shell descendants. Kill
     # lingering descendants too, even when their launcher already exited.
     time.sleep(2)
     for process in processes:
-        try:
-            os.killpg(process.pid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass
+        platform.terminate_tree(process, force=True)
 
 signal.signal(signal.SIGTERM, cancel)
 signal.signal(signal.SIGINT, cancel)
@@ -105,11 +104,15 @@ def grade(card):
         return card.get('complexity') if card.get('complexity') in ['low', 'medium', 'high'] else None, False
     if card.get('complexity') in ['low', 'medium', 'high']:
         return card['complexity'], False
-    prompt = (f"Read GitHub issue #{card['number']} (\"{card.get('title', '')}\") - body and all comments - with "
-              f".claude/bin/super-board-github-read.py --kind issue -- issue view {card['number']} --json number,title,body and "
-              f"--kind comments -- api repos/{{owner}}/{{repo}}/issues/{card['number']}/comments --paginate --slurp. "
+    remote = config['repo']['remote'].rstrip('/').removesuffix('.git')
+    remote_path = urlsplit(remote).path if '://' in remote else remote.split(':', 1)[-1]
+    repo = '/'.join(remote_path.strip('/').split('/')[-2:])
+    helper = root / '.claude/bin/super-board-github-read.py'
+    prompt = (f"Read GitHub issue #{card['number']} (\"{card.get('title', '')}\") - body and all comments. "
+              f"Repository: {repo}. Use python {json.dumps(str(helper))} --kind issue -- issue view {card['number']} --repo {repo} --json number,title,body and "
+              f"python {json.dumps(str(helper))} --kind comments -- api repos/{repo}/issues/{card['number']}/comments --paginate --slurp. "
               'Grade complexity (low|medium|high) by the scope of change required. Read only: change no file, '
-              'label, comment or board state. Exit 79 from the read helper means stop and return nothing.\n')
+              'label, comment or board state. Never print environment or credentials. Exit 79 from the read helper means stop and return nothing.\n')
     with tempfile.TemporaryDirectory(prefix='super-board-codex-grade-') as temporary:
         schema_path, output = Path(temporary) / 'schema.json', Path(temporary) / 'grade.json'
         schema_path.write_text(json.dumps(GRADE_SCHEMA))
@@ -118,12 +121,35 @@ def grade(card):
                    '-c', 'permissions.super-board-grade.filesystem={":root"="read", ":slash_tmp"="write", ":tmpdir"="write"}',
                    '-c', 'permissions.super-board-grade.network.enabled=true',
                    '--output-schema', str(schema_path), '--output-last-message', str(output), '-']
+        env = platform.environment(root)
+        if os.name == 'nt':
+            env['TEMP'] = env['TMP'] = temporary
+            # Required reads run in the trusted launcher so failures can save
+            # the shared halt marker. The scratch classifier stays read-only
+            # against the repository and never needs permission to write it.
+            evidence = []
+            reads = [('issue', ['issue', 'view', str(card['number']), '--repo', repo, '--json', 'number,title,body']),
+                     ('comments', ['api', f"repos/{repo}/issues/{card['number']}/comments", '--paginate', '--slurp'])]
+            for kind, read_args in reads:
+                read = subprocess.run([sys.executable, str(helper), '--kind', kind, '--', *read_args],
+                                      capture_output=True, text=True, env=env, cwd=root)
+                if read.returncode:
+                    print(f'Router required {kind} read failed; stopping dispatch', file=sys.stderr)
+                    return None, True
+                evidence.append(json.loads(read.stdout))
+            prompt = ('Grade complexity (low|medium|high) by the scope of change required. '
+                      'The launcher validated these complete GitHub issue and comment reads. '
+                      'Use this evidence directly; no tool calls, edits or further reads are needed.\n' + json.dumps(evidence))
+            command = ['codex', 'exec', '-m', ROUTER_MODEL, '-C', temporary,
+                       '--skip-git-repo-check', '-c', 'approval_policy="never"']
+            command += platform.permission_arguments('super-board-grade', temporary, root, env)
+            command += ['--output-schema', str(schema_path), '--output-last-message', str(output), '-']
         with mutex:
             if halted.is_set():
                 return None, True
             try:
                 process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
-                                           text=True, start_new_session=True)
+                                           text=True, start_new_session=True, env=env)
             except OSError:
                 return None, False
             active.add(process)
@@ -169,10 +195,7 @@ def run_card(card):
                 lock.write_text(f'PID={process.pid}\nLANE={lane}\nSTARTED={time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}\n')
             except OSError as error:
                 if process is not None:
-                    try:
-                        os.killpg(process.pid, signal.SIGKILL)
-                    except ProcessLookupError:
-                        pass
+                    platform.terminate_tree(process, force=True)
                     process.wait()
                     active.discard(process)
                 history.append(dict(lane=lane, status='failed', column=current['status'],
