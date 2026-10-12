@@ -352,7 +352,9 @@ test("registration, local verification mail and password reset revoke old sessio
   await page.getByRole("button", { name: "Buat akun", exact: true }).click();
   await expect(page.getByRole("status")).toContainText("Akun dibuat");
   await loginAccount(password);
-  await expect(page.getByRole("alert")).toContainText("belum terverifikasi");
+  await expect(page.locator("main [role='alert']")).toContainText(
+    "belum terverifikasi",
+  );
   await page.goto(await mailLink("verify-email"));
   await page
     .getByRole("button", { name: "Verifikasi email", exact: true })
@@ -373,7 +375,7 @@ test("registration, local verification mail and password reset revoke old sessio
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/login/);
   await loginAccount(password);
-  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(page.locator("main [role='alert']")).toBeVisible();
   await loginAccount(newPassword);
   await expect(page).toHaveURL(/\/dashboard$/);
 });
