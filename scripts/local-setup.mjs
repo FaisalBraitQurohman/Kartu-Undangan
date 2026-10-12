@@ -16,7 +16,7 @@ const exists = async (file) => {
   }
 };
 
-async function run(file, args, env = process.env) {
+async function run(file, args, env = process.env, sessionEnded = () => false) {
   await new Promise((yes, no) => {
     const child = spawn(process.execPath, [file, ...args], {
       env,
@@ -31,7 +31,7 @@ async function run(file, args, env = process.env) {
       ),
     );
     child.once("exit", (code) =>
-      code === 0
+      code === 0 || sessionEnded()
         ? yes()
         : no(
             new Error(
@@ -47,6 +47,22 @@ async function isPortFree(port) {
     const server = net.createServer();
     server.once("error", () => done(false));
     server.listen(port, "127.0.0.1", () => server.close(() => done(true)));
+  });
+}
+
+async function isListening(port) {
+  return new Promise((done) => {
+    const socket = net.createConnection({ host: "127.0.0.1", port });
+    socket.setTimeout(500);
+    socket.once("connect", () => {
+      socket.destroy();
+      done(true);
+    });
+    socket.once("error", () => done(false));
+    socket.once("timeout", () => {
+      socket.destroy();
+      done(false);
+    });
   });
 }
 
@@ -86,17 +102,35 @@ async function main() {
       console.log(
         `Database development memakai port ${state.dbPort}. Biarkan terminal ini terbuka; jalankan local:setup dari terminal lain.`,
       );
-      await run(cli, [
-        "dev",
-        "--name",
-        state.name,
-        "--port",
-        String(state.dbPort - 1),
-        "--db-port",
-        String(state.dbPort),
-        "--shadow-db-port",
-        String(state.dbPort + 1),
-      ]);
+      let ready = false;
+      const timer = setInterval(async () => {
+        if (!ready && (await isListening(state.dbPort))) {
+          ready = true;
+          console.log(
+            "Database lokal siap. Jalankan local:setup atau npm run dev di terminal lain.",
+          );
+        }
+      }, 500);
+      try {
+        await run(
+          cli,
+          [
+            "dev",
+            "--name",
+            state.name,
+            "--port",
+            String(state.dbPort - 1),
+            "--db-port",
+            String(state.dbPort),
+            "--shadow-db-port",
+            String(state.dbPort + 1),
+          ],
+          process.env,
+          () => ready,
+        );
+      } finally {
+        clearInterval(timer);
+      }
       console.log("Sesi database lokal berakhir. Data tetap tersimpan.");
       return;
     } else await run(cli, ["dev", "stop", state.name]);

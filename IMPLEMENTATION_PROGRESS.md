@@ -35,7 +35,7 @@ See README.md for the two-terminal local startup and docs/DEPLOYMENT.md for prev
 | External integrations         | Adapters implemented; live service verification pending                                                   |
 | Checks/deployment preparation | Local checks passed; setup documented; deployment pending                                                 |
 
-## Verification actually performed
+## Earlier implementation baseline
 
 - `npm test`: **30 unit tests passed**, including financial state transitions, signatures, authorization, validation and security helpers.
 - `npm run test:integration`: **14 tests passed** against a disposable local Prisma Postgres/PGlite instance, exercising real database writes. Outbound email, Midtrans HTTP and Cloudinary are mocked. Coverage includes ownership, concurrent checkout, webhook retries, reversal handling, publication, revision conflicts, guest responses and media quotas/deletion.
