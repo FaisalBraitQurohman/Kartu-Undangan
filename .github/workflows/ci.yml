@@ -1,0 +1,77 @@
+name: UndangKita CI
+
+on:
+  pull_request:
+    branches: [main, staging]
+  push:
+    branches: [main, staging]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Quality and PostgreSQL workflows
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: undangkita_ci
+          POSTGRES_PASSWORD: ephemeral_ci_only
+          POSTGRES_DB: undangkita_ci
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U undangkita_ci -d undangkita_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      DATABASE_URL: postgresql://undangkita_ci:ephemeral_ci_only@localhost:5432/undangkita_ci
+      TEST_DATABASE_URL: postgresql://undangkita_ci:ephemeral_ci_only@localhost:5432/undangkita_ci
+      NEXTAUTH_URL: http://localhost:3100
+      NEXT_PUBLIC_APP_URL: http://localhost:3100
+      EMAIL_DELIVERY_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Generate client and prepare disposable database
+        run: |
+          npm run db:generate
+          npm run db:migrate
+          npm run db:seed
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit tests
+        run: npm test
+      - name: Production build
+        run: npm run build
+      - name: Install Chromium and OS dependencies
+        run: npx playwright install --with-deps chromium
+      - name: Database and browser workflows (required database)
+        run: npm run test:database
+      - name: Upload failed browser evidence
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: browser-failure-evidence
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
+          if-no-files-found: ignore

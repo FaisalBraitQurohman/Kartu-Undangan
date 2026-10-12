@@ -1,3 +1,4 @@
+import "../scripts/load-env";
 import { PrismaClient, Prisma } from "@prisma/client";
 import { z } from "zod";
 import { contentSchema } from "../src/validators/invitation";

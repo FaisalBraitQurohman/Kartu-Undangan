@@ -2,6 +2,10 @@
 
 Indonesian digital invitations, purchased templates unlock permanently per user. No recurring billing, invitation expiry or invitation count quotas.
 
+## Workflow preference
+
+The user chose to stop using super-board on 12 October 2026. Work directly through Codex. Do not start or resume board workers unless the user explicitly requests using super-board again. Installed tooling and existing GitHub tickets may remain for reference. The managed Super Board section below applies only if the user explicitly enables that workflow again.
+
 ## Commands
 
 - `npm run dev`: local app

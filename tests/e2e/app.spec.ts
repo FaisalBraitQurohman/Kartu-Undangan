@@ -2,6 +2,8 @@ import { test, expect, type Page } from "@playwright/test";
 import { PrismaClient } from "@prisma/client";
 import { randomBytes } from "node:crypto";
 import { hash } from "bcryptjs";
+import { readdir, readFile, unlink, rmdir } from "node:fs/promises";
+import { resolve, sep } from "node:path";
 const hasDb = !!process.env.TEST_DATABASE_URL;
 const db = new PrismaClient();
 const prefix = `browser-${randomBytes(6).toString("hex")}`;
@@ -61,6 +63,21 @@ test.afterAll(async () => {
     await db.user.deleteMany({ where: { id: { in: all } } });
   }
   await db.$disconnect();
+  const directory = process.env.LOCAL_MAIL_DIR;
+  if (directory && resolve(directory).startsWith(resolve(".local") + sep)) {
+    try {
+      for (const name of await readdir(directory))
+        await unlink(resolve(directory, name));
+      await rmdir(directory);
+    } catch (error) {
+      if (!(
+        error instanceof Error &&
+        "code" in error &&
+        error.code === "ENOENT"
+      ))
+        throw error;
+    }
+  }
 });
 async function login(page: Page, index = 0) {
   await page.goto("/login");
@@ -234,7 +251,7 @@ test("cross-user isolation and admin authorization are enforced in APIs", async 
   expect(
     (
       await page.request.post(`/api/manage/invitations/${privateId}/guests`, {
-        headers: { origin: "http://localhost:3000" },
+        headers: { origin: "http://localhost:3100" },
         data: { name: "Intruder" },
       })
     ).status(),
@@ -242,7 +259,7 @@ test("cross-user isolation and admin authorization are enforced in APIs", async 
   expect(
     (
       await page.request.patch(`/api/manage/admin/users/${users[0].id}`, {
-        headers: { origin: "http://localhost:3000" },
+        headers: { origin: "http://localhost:3100" },
         data: { role: "ADMIN", disabled: false },
       })
     ).status(),
@@ -261,7 +278,7 @@ test("cross-user isolation and admin authorization are enforced in APIs", async 
   ).toBeVisible();
   await page.goto("/dashboard");
   await page.getByRole("button", { name: "Keluar", exact: true }).click();
-  await expect(page).toHaveURL("http://localhost:3000/");
+  await expect(page).toHaveURL("http://localhost:3100/");
   const session = await page.request.get("/api/auth/session");
   expect((await session.json()).user).toBeUndefined();
 });
@@ -301,4 +318,62 @@ test("admin template management persists authoritative prices", async ({
     const response = await page.goto(`/admin/${route}`);
     expect(response?.status()).toBe(200);
   }
+});
+
+test("registration, local verification mail and password reset revoke old sessions", async ({
+  page,
+}) => {
+  test.skip(!hasDb, "Requires TEST_DATABASE_URL");
+  const email = `${prefix}-registration@example.test`;
+  const newPassword = randomBytes(24).toString("hex");
+  const loginAccount = async (value: string) => {
+    await page.goto("/login");
+    await page.getByLabel("Alamat email").fill(email);
+    await page.getByLabel("Kata sandi", { exact: true }).fill(value);
+    await page.getByRole("button", { name: "Masuk", exact: true }).click();
+  };
+  const mailLink = async (route: string) => {
+    const directory = process.env.LOCAL_MAIL_DIR!;
+    const files = await readdir(directory);
+    for (const file of files) {
+      const body = await readFile(resolve(directory, file), "utf8");
+      if (!body.includes(`Kepada: ${email}\n`)) continue;
+      const link = body.match(
+        new RegExp(`http://localhost:3100/${route}\\?token=[a-f0-9]{64}`),
+      );
+      if (link) return link[0];
+    }
+    throw new Error("Email fixture belum ditemukan di inbox lokal.");
+  };
+  await page.goto("/register");
+  await page.getByLabel("Nama lengkap").fill("Pengguna lokal");
+  await page.getByLabel("Alamat email").fill(email);
+  await page.getByLabel("Kata sandi", { exact: true }).fill(password);
+  await page.getByRole("button", { name: "Buat akun", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("Akun dibuat");
+  await loginAccount(password);
+  await expect(page.getByRole("alert")).toContainText("belum terverifikasi");
+  await page.goto(await mailLink("verify-email"));
+  await page
+    .getByRole("button", { name: "Verifikasi email", exact: true })
+    .click();
+  await expect(page.getByRole("status")).toContainText("berhasil");
+  await loginAccount(password);
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await page.goto("/forgot-password");
+  await page.getByLabel("Alamat email").fill(email);
+  await page.getByRole("button", { name: "Kirim tautan", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("Jika email terdaftar");
+  await page.goto(await mailLink("reset-password"));
+  await page.getByLabel("Kata sandi", { exact: true }).fill(newPassword);
+  await page
+    .getByRole("button", { name: "Simpan kata sandi", exact: true })
+    .click();
+  await expect(page.getByRole("status")).toContainText("berhasil");
+  await page.goto("/dashboard");
+  await expect(page).toHaveURL(/\/login/);
+  await loginAccount(password);
+  await expect(page.getByRole("alert")).toBeVisible();
+  await loginAccount(newPassword);
+  await expect(page).toHaveURL(/\/dashboard$/);
 });

@@ -20,6 +20,24 @@ External integrations are implemented, but they require your own configuration. 
 
 Node 22.12+ or a compatible newer Node version. This checkout was built and tested with Node 26.10.0.
 
+### First local run without external accounts
+
+From a fresh checkout with no `.env` or `.env.local`:
+
+```sh
+npm ci
+npm run local:setup
+npm run dev
+```
+
+Open `http://localhost:3000`. The setup creates a named Prisma Postgres development database, applies both migrations, seeds the four templates and writes an ignored `.env.local` with a random AUTH_SECRET. It refuses to overwrite existing environment files or use occupied ports. No default user/admin password is created. The database uses loopback development ports 51420–51422; keep these local and use a managed PostgreSQL database for deployment.
+
+Register your own account, then run `npm run local:inbox`. Open the newest text email under `.local/mail` and follow its verification link in the browser. This inbox is a real local delivery transport, clearly marked as development; messages are not delivered to an internet mailbox. Reset-password and queued notifications also use it. Local delivery is refused in production and hosted Vercel environments. Inbox messages contain private account links; do not share them or commit the directory.
+
+To make your verified account an administrator: `npm run admin:promote -- your-email`. Sign in again afterwards. On subsequent sessions, use `npm run local:db` and `npm run dev`; stop the database with `npm run local:stop`. Data is preserved. Database commands and promotion load Next.js environment configuration, including `.env.local`.
+
+The free invitation workflow runs locally. Payment checkout, media upload and real internet email need the corresponding external accounts; missing adapters return explicit errors and never silently grant premium templates or fake delivery. For manual/managed database setup, follow the steps below.
+
 ```sh
 npm ci
 ```
@@ -85,12 +103,16 @@ npm test
 npm run test:integration
 npx playwright install chromium
 npm run test:e2e
+npm run test:database
 npm run build
 ```
 
 Integration and authenticated browser tests require **TEST_DATABASE_URL pointing to a disposable, migrated and seeded PostgreSQL database**. The fixture cleanup affects only generated test rows. Never set it to production. Missing TEST_DATABASE_URL causes database-dependent suites to skip; a skipped test is not verification.
 
 Integration tests exercise real database writes and mock only outbound email/payment HTTP boundaries. Browser tests run a local Next server with generated test credentials and disabled external payments/emails. See IMPLEMENTATION_PROGRESS.md for actual results and limits.
+Browser tests use an isolated local mail inbox and port 3100. `test:database` requires TEST_DATABASE_URL and refuses missing configuration, so CI cannot pass merely by skipping database suites. Run it in a separate checkout if another Next dev server is already running in this checkout.
+
+GitHub Actions runs the **Quality and PostgreSQL workflows** check on PRs and pushes to main/staging. It uses Node 24, npm ci, PostgreSQL 17 with a health check, both migrations and seed, lint/typecheck/unit tests, production build and Chromium/database workflows. Its PostgreSQL password is disposable service configuration, not a production secret. Failed browser traces/screenshots are retained for seven days. The workflow has contents:read permission, pinned action commits, cancellation for superseded runs, and no deployment step.
 
 On Windows, stop running Next/Vitest processes before `prisma generate` or `npm run build`; the Prisma DLL can be locked by another process. Run generation, database tests and production build sequentially.
 
@@ -100,4 +122,4 @@ Use Vercel's Next.js preset and `npm run build`. Provision managed PostgreSQL an
 
 Validate the full sandbox payment, upload/delete and mail delivery workflows against your accounts before enabling live payments. Schedule the protected email queue endpoint, confirm backups and review your operator contact/privacy/terms information. No production deployment or real payment has been executed from this workspace.
 
-See ARCHITECTURE.md, DATABASE_DESIGN.md, IMPLEMENTATION_PLAN.md and IMPLEMENTATION_PROGRESS.md. Super-board is configured in `.claude/super-board/configs/kartu-undangan.json` for staging and GitHub Project “Kartu Undangan” #1. Run `$super-board lint`, then `$super-board run --codex --low` through Codex chat. Windows requires Git Bash, Python and jq; onboarding added their launcher paths to the user PATH, so restart the IDE if an existing process cannot find them. The Claude hook settings apply to Claude Code; Codex workers must follow AGENTS.md and use the merge gate. Database migrations remain human-gated until an environment is configured. No autonomous board worker has been started.
+See ARCHITECTURE.md, DATABASE_DESIGN.md, IMPLEMENTATION_PLAN.md and IMPLEMENTATION_PROGRESS.md. Super-board remains installed for historical reference, but the user stopped using it. Development proceeds directly through Codex; do not start board workers unless explicitly requested again.
