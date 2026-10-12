@@ -65,7 +65,19 @@ def environment(root):
     return env
 
 
-def permission_arguments(name, writable_root, repository, env, git_dirs=()):
+def lane_workspace(repository, number, lane):
+    """Materialize the exact card directory before Windows computes its ACLs."""
+    repository = Path(repository).resolve()
+    if type(number) is not int or number < 1 or lane not in ('build', 'qa', 'review'):
+        raise ValueError('Invalid card workspace')
+    workspace = repository / '.claude/worktrees' / f'issue-{number}-{lane}'
+    if workspace.resolve() != workspace.absolute():
+        raise ValueError('Card workspace must not use directory aliases')
+    workspace.mkdir(parents=True, exist_ok=True)
+    return workspace.resolve()
+
+
+def permission_arguments(name, writable_root, repository, env, git_dirs=(), additional_roots=()):
     """Keep writes scoped to the scratch router folder or lane workspace."""
     writable_root, repository = Path(writable_root).resolve(), Path(repository).resolve()
     filesystem = {':root': 'read', ':minimal': 'read',
@@ -75,6 +87,13 @@ def permission_arguments(name, writable_root, repository, env, git_dirs=()):
         filesystem[str(repository)] = 'read'
     for path in git_dirs:
         filesystem[str(Path(path).resolve())] = 'write'
+    additions = []
+    for path in additional_roots:
+        path = Path(path).resolve()
+        if not path.is_dir() or not path.is_relative_to(repository):
+            raise ValueError('Additional workspace must be an existing repository directory')
+        filesystem[str(path)] = 'write'
+        additions += ['--add-dir', str(path)]
     for tool in ('gh', 'jq', 'bash', 'python', 'python3', 'node', 'codex'):
         executable = shutil.which(tool, path=env.get('PATH'))
         if executable:
@@ -87,7 +106,7 @@ def permission_arguments(name, writable_root, repository, env, git_dirs=()):
     for key in env:
         if re.search('KEY|SECRET|PASSWORD|TOKEN', key, re.I) and key not in ('GH_TOKEN', 'GITHUB_TOKEN'):
             filters[key] = 'exclude'
-    return ['-c', f'default_permissions={json.dumps(name)}',
+    return additions + ['-c', f'default_permissions={json.dumps(name)}',
             '-c', f'permissions.{name}.filesystem={_inline(filesystem)}',
             '-c', f'permissions.{name}.network.enabled=true',
             '-c', f'permissions.{name}.network.allow_local_binding=true',
