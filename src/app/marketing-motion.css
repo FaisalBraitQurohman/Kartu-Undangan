@@ -1,0 +1,82 @@
+.marketplace-home {
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+.marketplace-home .editorial-actions a,
+.marketplace-home .card-actions a,
+.marketplace-home .editor-copy a,
+.marketplace-home .closing-copy a {
+  transition:
+    transform 160ms var(--motion-ease),
+    background-color 200ms ease,
+    border-color 200ms ease;
+}
+.marketplace-home .editorial-actions a:active,
+.marketplace-home .card-actions a:active,
+.marketplace-home .editor-copy a:active,
+.marketplace-home .closing-copy a:active {
+  transform: scale(0.97);
+}
+.color-swatches button,
+.editor-palette button {
+  transition:
+    transform 180ms var(--motion-ease, ease),
+    outline-offset 180ms ease;
+}
+.color-swatches button[aria-pressed="true"],
+.editor-palette button[aria-pressed="true"] {
+  transform: scale(1.1);
+}
+.phone-content .invite-cover,
+.phone-content .cover-oval,
+.phone-content .phone-open {
+  transition:
+    background-color 220ms ease,
+    border-color 220ms ease,
+    color 220ms ease;
+}
+.marketplace-faq summary > span {
+  transition: transform 220ms var(--motion-ease);
+}
+@supports (interpolate-size: allow-keywords) {
+  .marketplace-faq details {
+    interpolate-size: allow-keywords;
+  }
+  .marketplace-faq details::details-content {
+    block-size: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition:
+      block-size 240ms var(--motion-ease),
+      opacity 180ms ease,
+      content-visibility 240ms allow-discrete;
+  }
+  .marketplace-faq details[open]::details-content {
+    block-size: auto;
+    opacity: 1;
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  .card-stage:hover .card-phone,
+  .card-stage:focus-visible .card-phone {
+    transform: rotate(0) translateY(5px);
+  }
+  .marketplace-home .editorial-actions a:hover svg,
+  .marketplace-home .closing-copy a:hover svg {
+    transform: translateX(3px);
+  }
+  .marketplace-home .editorial-actions svg,
+  .marketplace-home .closing-copy a svg {
+    transition: transform 200ms var(--motion-ease);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marketplace-home :is(a, button):active,
+  .color-swatches button[aria-pressed="true"],
+  .editor-palette button[aria-pressed="true"],
+  .card-stage:hover .card-phone,
+  .card-stage:focus-visible .card-phone,
+  .marketplace-home .editorial-actions a:hover svg,
+  .marketplace-home .closing-copy a:hover svg {
+    transform: none;
+  }
+}

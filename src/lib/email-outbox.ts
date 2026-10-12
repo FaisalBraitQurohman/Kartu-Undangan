@@ -1,15 +1,9 @@
 import { db } from "@/lib/db";
-import { sendEmail } from "./email";
-import { AppError } from "@/lib/security/errors";
+import { sendEmail, assertEmailConfigured } from "./email";
 export async function deliverEmailOutbox({
   retryFailed = false,
 }: { retryFailed?: boolean } = {}) {
-  if (
-    process.env.EMAIL_DELIVERY_ENABLED !== "true" ||
-    !process.env.RESEND_API_KEY ||
-    !process.env.EMAIL_FROM
-  )
-    throw new AppError(503, "Pengiriman email belum dikonfigurasi.");
+  assertEmailConfigured();
   if (retryFailed)
     await db.emailJob.updateMany({
       where: { sentAt: null, attempts: { gte: 10 }, lockedAt: null },

@@ -11,9 +11,14 @@
     "test": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
     "test:e2e": "playwright test",
-    "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate deploy",
-    "db:dev": "prisma migrate dev",
+    "test:database": "node scripts/test-database.mjs",
+    "local:setup": "node scripts/local-setup.mjs",
+    "local:stop": "node scripts/local-setup.mjs --stop",
+    "local:db": "node scripts/local-setup.mjs --start",
+    "local:inbox": "node scripts/local-inbox.mjs",
+    "db:generate": "node scripts/database.mjs generate",
+    "db:migrate": "node scripts/database.mjs migrate deploy",
+    "db:dev": "node scripts/database.mjs migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "admin:promote": "tsx scripts/promote-admin.ts"
   },
@@ -21,6 +26,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@next/env": "16.4.0",
     "@hookform/resolvers": "5.9.1",
     "@prisma/client": "6.19.3",
     "@radix-ui/react-alert-dialog": "1.2.0",
