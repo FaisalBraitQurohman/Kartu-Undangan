@@ -83,30 +83,45 @@ async function main() {
     !/^undangkita-local(?:-[a-z0-9]+)?$/.test(name)
   )
     throw new Error("Nama/port database lokal tidak valid.");
-  for (const port of [dbPort - 1, dbPort, dbPort + 1]) {
-    if (!(await isPortFree(port)))
+  const ownsService = await exists(statePath);
+  if (ownsService) {
+    const state = JSON.parse(await readFile(statePath, "utf8"));
+    if (state.name !== name || state.dbPort !== dbPort)
       throw new Error(
-        `Port ${port} sedang digunakan. Pilih LOCAL_DB_PORT lain atau gunakan database lokal yang sudah dibuat.`,
+        "Metadata setup lama memakai nama/port berbeda. Gunakan konfigurasi sebelumnya.",
       );
+  } else {
+    for (const port of [dbPort - 1, dbPort, dbPort + 1]) {
+      if (!(await isPortFree(port)))
+        throw new Error(
+          `Port ${port} sedang digunakan. Pilih LOCAL_DB_PORT lain atau gunakan database lokal yang sudah dibuat.`,
+        );
+    }
   }
+  console.log("Menyiapkan Prisma Client...");
+  await run(cli, ["generate"]);
   console.log("Menyiapkan Prisma Postgres lokal untuk development...");
-  await run(cli, [
-    "dev",
-    "--name",
-    name,
-    "--port",
-    String(dbPort - 1),
-    "--db-port",
-    String(dbPort),
-    "--shadow-db-port",
-    String(dbPort + 1),
-    "--detach",
-  ]);
+  if (!ownsService)
+    await run(cli, [
+      "dev",
+      "--name",
+      name,
+      "--port",
+      String(dbPort - 1),
+      "--db-port",
+      String(dbPort),
+      "--shadow-db-port",
+      String(dbPort + 1),
+      "--detach",
+    ]);
   await mkdir(resolve(root, ".local"), { recursive: true });
-  await writeFile(statePath, JSON.stringify({ name, dbPort }) + "\n", {
-    flag: "wx",
-    mode: 0o600,
-  });
+  if (ownsService && (await isPortFree(dbPort)))
+    await run(cli, ["dev", "start", name]);
+  if (!ownsService)
+    await writeFile(statePath, JSON.stringify({ name, dbPort }) + "\n", {
+      flag: "wx",
+      mode: 0o600,
+    });
   // This connection belongs to Prisma's loopback-only development server.
   // It is never used for deployment or a production database.
   const databaseUrl = `postgres://postgres:postgres@localhost:${dbPort}/template1?sslmode=disable&connection_limit=1&statement_cache_size=0&pgbouncer=true&connect_timeout=10`;

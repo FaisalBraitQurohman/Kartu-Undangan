@@ -1,4 +1,5 @@
-import { loadEnvConfig } from "@next/env";
+import nextEnv from "@next/env";
+const { loadEnvConfig } = nextEnv;
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 
