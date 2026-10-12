@@ -2,7 +2,13 @@ import type { NextConfig } from "next";
 const config: NextConfig = {
   poweredByHeader: false,
   outputFileTracingExcludes: {
-    "/*": ["./.env*", "./.local/**/*", "./.claude/**/*", "./.agents/**/*"],
+    "/*": [
+      "./.env*",
+      "./.local/**/*",
+      "./.claude/**/*",
+      "./.agents/**/*",
+      "./.vercel/**/*",
+    ],
   },
   images: {
     remotePatterns: [{ protocol: "https", hostname: "res.cloudinary.com" }],

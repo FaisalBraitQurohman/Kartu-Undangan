@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./marketplace.css";
 :root {
   --background: #faf8f4;
   --foreground: #3b302b;

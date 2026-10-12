@@ -5,10 +5,13 @@ import { TemplateRenderer } from "@/templates/renderer";
 import { demoContent } from "@/validators/invitation";
 export default async function Demo({
   params,
+  searchParams,
 }: {
   params: Promise<{ key: string }>;
+  searchParams: Promise<{ accent?: string }>;
 }) {
   const { key } = await params;
+  const { accent } = await searchParams;
   if (!isTemplateKey(key)) notFound();
   return (
     <main id="main">
@@ -18,7 +21,14 @@ export default async function Demo({
           Pilih template
         </Link>
       </div>
-      <TemplateRenderer templateKey={key} content={demoContent} />
+      <TemplateRenderer
+        templateKey={key}
+        content={
+          accent && /^#[0-9a-fA-F]{6}$/.test(accent)
+            ? { ...demoContent, accent }
+            : demoContent
+        }
+      />
     </main>
   );
 }

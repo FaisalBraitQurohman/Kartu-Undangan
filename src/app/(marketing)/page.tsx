@@ -1,246 +1,300 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
+  ArrowRight,
   ArrowUpRight,
-  Palette,
-  HeartHandshake,
-  Sparkles,
-  Send,
   Check,
-  Pencil,
+  Diamond,
+  Heart,
+  Infinity as InfinityIcon,
+  Layers3,
+  PencilLine,
+  Play,
+  Send,
+  ShieldCheck,
+  Smartphone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TemplateCover } from "@/templates/renderer";
-import { demoContent } from "@/validators/invitation";
+import { PhoneMockup } from "@/components/marketing/phone-mockup";
+import { EditorShowcase } from "@/components/marketing/editor-showcase";
 import { Catalog } from "@/components/marketing/catalog";
 import { FAQ } from "@/components/marketing/faq";
 export const dynamic = "force-dynamic";
+const benefits = [
+  {
+    icon: Diamond,
+    title: "Desain premium",
+    text: "Detail yang dipilih dengan hati.",
+  },
+  { icon: InfinityIcon, title: "Sekali beli", text: "Gunakan selamanya." },
+  {
+    icon: PencilLine,
+    title: "Mudah dikustomisasi",
+    text: "Buat jadi cerita kalian.",
+  },
+  {
+    icon: Send,
+    title: "Bagikan dengan mudah",
+    text: "Satu tautan, banyak kenangan.",
+  },
+];
 export default function Home() {
   return (
-    <main id="main">
-      <section className="container-page grid items-center gap-14 pb-24 pt-12 md:grid-cols-[1.1fr_1fr] md:pt-20">
-        <div>
-          <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-xs">
-            <span className="size-1.5 rounded-full bg-ring" />
-            Dirangkai untuk hari istimewamu
-          </p>
-          <h1 className="display max-w-xl text-5xl sm:text-6xl lg:text-7xl">
-            Setiap Momen Indah, Layak Dikenang.
-          </h1>
-          <p className="mt-7 max-w-md text-base leading-8 text-muted-foreground">
-            Buat undangan digital yang elegan dan personal. Pilih desain
-            favorit, edit sesukamu, lalu bagikan dengan mudah.
-          </p>
-          <div className="mt-9 flex flex-wrap gap-3">
-            <Button asChild size="lg">
-              <Link href="/templates">
-                Jelajahi template
-                <ArrowUpRight size={17} />
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <Link href="/demo/minimalist-ivory">Lihat demo</Link>
-            </Button>
-          </div>
-          <p className="mt-7 flex items-center gap-2 text-xs text-muted-foreground">
-            <Check size={15} />
-            Sekali beli. Tanpa masa aktif. Milikmu selamanya.
-          </p>
-        </div>
-        <div className="hero-stationery">
-          <TemplateCover templateKey="minimalist-ivory" content={demoContent} />
-          <div className="hero-note">
-            <span className="font-serif text-lg">
-              Cerita kalian, cara kalian.
-            </span>
-            <p className="mt-2 text-muted-foreground">
-              Contoh desain Minimalist Ivory
-            </p>
-          </div>
-        </div>
-      </section>
-      <section className="border-y border-border bg-white/50 py-10">
-        <div className="container-page grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            [Palette, "Desain premium", "Setiap detail punya cerita."],
-            [
-              HeartHandshake,
-              "Sekali beli, gunakan selamanya",
-              "Tanpa tagihan berulang.",
-            ],
-            [Sparkles, "Mudah dikustomisasi", "Ubah sesuai kisah kalian."],
-            [Send, "Bagikan dengan mudah", "Satu tautan untuk semua."],
-          ].map(([Icon, title, text]) => {
-            const I = Icon as typeof Palette;
-            return (
-              <div key={String(title)} className="flex gap-4">
-                <I className="shrink-0 text-ring" size={24} />
-                <div>
-                  <h2 className="text-sm font-semibold">{String(title)}</h2>
-                  <p className="mt-2 text-xs leading-6 text-muted-foreground">
-                    {String(text)}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-      <section className="container-page section-space">
-        <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h2 className="display text-4xl">
-              Pilih yang terasa seperti kamu.
-            </h2>
-            <p className="mt-4 text-sm text-muted-foreground">
-              Dari sederhana hingga megah, temukan desain untuk ceritamu.
-            </p>
-          </div>
-          <Link
-            href="/templates"
-            className="flex items-center gap-2 text-sm font-semibold"
-          >
-            Semua template
-            <ArrowUpRight size={16} />
-          </Link>
-        </div>
-        <Catalog limit={4} />
-      </section>
-      <section className="bg-secondary/40">
-        <div className="container-page section-space grid gap-12 md:grid-cols-[1fr_1.4fr]">
-          <div>
-            <h2 className="display text-4xl">
-              Dari sebuah pilihan,
+    <main id="main" className="marketplace-home">
+      <section className="marketplace-hero container-page">
+        <div className="hero-layout">
+          <div className="hero-copy">
+            <p className="hero-label">Undangan digital untuk momen spesial</p>
+            <h1 className="display">
+              Setiap momen indah,
               <br />
-              menjadi sebuah undangan.
-            </h2>
-            <p className="mt-5 max-w-sm text-sm leading-8 text-muted-foreground">
-              Tiga langkah sederhana. Lebih banyak waktu untuk menikmati
-              persiapan hari bahagia.
+              layak dikenang.
+            </h1>
+            <p className="hero-description">
+              Buat undangan digital yang elegan dan personal.
+              <br className="hidden lg:block" /> Pilih desain favorit, edit
+              sesukamu, lalu bagikan dengan mudah.
             </p>
-            <Button asChild variant="outline" className="mt-7">
-              <Link href="/cara-kerja">Lihat cara kerja</Link>
-            </Button>
+            <div className="hero-actions">
+              <Button asChild size="lg">
+                <Link href="#koleksi">
+                  Jelajahi template <ArrowRight size={16} />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/demo/minimalist-ivory">
+                  Lihat demo <Play size={13} />
+                </Link>
+              </Button>
+            </div>
+            <p className="hero-ownership">
+              <Check size={14} /> Sekali beli, gunakan selamanya. Tanpa
+              langganan.
+            </p>
           </div>
-          <div className="grid gap-8 sm:grid-cols-3">
-            {[
-              [
-                "01",
-                "Pilih template",
-                "Temukan desain. Gratis atau premium, semua punya pesona.",
-              ],
-              [
-                "02",
-                "Edit undangan",
-                "Isi nama, acara, cerita, dan foto. Lihat hasilnya langsung.",
-              ],
-              [
-                "03",
-                "Bagikan",
-                "Publikasikan dan kirim tautan personal untuk setiap tamu.",
-              ],
-            ].map(([n, title, text]) => (
-              <div key={n} className="border-t border-border pt-6">
-                <span className="font-serif text-4xl text-ring">{n}</span>
-                <h3 className="my-4 font-serif text-xl">{title}</h3>
-                <p className="text-sm leading-7 text-muted-foreground">
-                  {text}
-                </p>
-              </div>
-            ))}
+          <div className="hero-phones">
+            <div className="hero-arch" aria-hidden="true" />
+            <p className="hero-handwritten">
+              Desain elegan
+              <br />
+              untuk setiap cerita <Heart size={13} />
+            </p>
+            <Link
+              className="hero-phone hero-phone-left"
+              href="/demo/romantic-bloom"
+              aria-label="Lihat demo Romantic Bloom"
+            >
+              <PhoneMockup templateKey="romantic-bloom" />
+            </Link>
+            <Link
+              className="hero-phone hero-phone-right"
+              href="/demo/emerald-garden"
+              aria-label="Lihat demo Emerald Garden"
+            >
+              <PhoneMockup templateKey="emerald-garden" accent="#dbc29b" />
+            </Link>
+            <Link
+              className="hero-phone hero-phone-center"
+              href="/demo/minimalist-ivory"
+              aria-label="Lihat demo Minimalist Ivory"
+            >
+              <PhoneMockup templateKey="minimalist-ivory" />
+            </Link>
+            <span className="hero-collection-note">
+              Tiga desain, satu cerita yang istimewa.
+            </span>
           </div>
         </div>
-      </section>
-      <section className="container-page section-space grid items-center gap-12 md:grid-cols-2">
-        <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-[0_12px_50px_#3b302b0a]">
-          <div className="flex items-center justify-between border-b border-border px-5 py-4 text-xs">
-            <span className="flex items-center gap-2">
-              <Pencil size={14} />
-              Editor undangan
-            </span>
-            <span className="text-muted-foreground">Contoh tampilan</span>
-          </div>
-          <div className="grid grid-cols-[1fr_1fr] gap-4 p-5">
-            <div className="space-y-5 py-4 text-xs">
-              <p className="font-semibold">Identitas pasangan</p>
-              <div>
-                <p className="mb-2 text-muted-foreground">Nama mempelai</p>
-                <div className="rounded-lg border border-border p-3">
-                  Alya Putri
-                </div>
-              </div>
-              <div>
-                <p className="mb-2 text-muted-foreground">Nama pasangan</p>
-                <div className="rounded-lg border border-border p-3">
-                  Rizky Pratama
-                </div>
-              </div>
-              <p className="text-muted-foreground">
-                Perubahan tampil di pratinjau.
+        <div className="hero-benefits">
+          {benefits.map(({ icon: Icon, title, text }) => (
+            <div key={title}>
+              <span className="benefit-icon">
+                <Icon size={20} strokeWidth={1.5} />
+              </span>
+              <p>
+                <strong>{title}</strong>
+                <span>{text}</span>
               </p>
             </div>
-            <div className="template-mini overflow-hidden rounded-t-[80px]">
-              <TemplateCover
-                templateKey="romantic-bloom"
-                content={demoContent}
-              />
-            </div>
-          </div>
+          ))}
         </div>
-        <div>
-          <h2 className="display text-4xl">
-            Setiap detail,
-            <br />
-            punya sentuhanmu.
+      </section>
+      <section id="koleksi" className="container-page marketplace-collection">
+        <div className="marketplace-section-heading">
+          <div>
+            <p className="section-kicker">Koleksi UndangKita</p>
+            <h2 className="display">
+              Temukan desain yang terasa seperti kamu.
+            </h2>
+          </div>
+          <Link href="/templates">
+            Jelajahi koleksi <ArrowUpRight size={17} />
+          </Link>
+        </div>
+        <Catalog />
+      </section>
+      <section
+        className="container-page marketplace-reasons"
+        aria-labelledby="alasan-heading"
+      >
+        <div className="centered-heading">
+          <h2 id="alasan-heading" className="display">
+            Indah untuk dilihat. Mudah untuk digunakan.
           </h2>
-          <p className="mt-6 max-w-md text-sm leading-8 text-muted-foreground">
-            Tidak perlu paham desain. Editor yang sederhana membantumu menata
-            cerita, foto, musik, dan semua informasi penting dalam satu tempat.
+          <p>Semua yang kamu butuhkan untuk mengundang, dalam satu tempat.</p>
+        </div>
+        <div className="reason-grid">
+          {[
+            {
+              icon: Diamond,
+              title: "Desain penuh karakter",
+              text: "Pilih gaya yang paling dekat dengan kisah dan momen kalian.",
+            },
+            {
+              icon: InfinityIcon,
+              title: "Sekali beli, gunakan selamanya",
+              text: "Tanpa biaya langganan, masa aktif, atau batas jumlah undangan.",
+            },
+            {
+              icon: Smartphone,
+              title: "Nyaman di setiap layar",
+              text: "Undangan tampil rapi di ponsel, tablet, dan desktop.",
+            },
+            {
+              icon: ShieldCheck,
+              title: "Kamu yang memegang kendali",
+              text: "Atur tamu, RSVP, dan ucapan lewat dashboard pribadimu.",
+            },
+          ].map(({ icon: Icon, title, text }) => (
+            <article key={title}>
+              <span className="benefit-icon">
+                <Icon size={24} strokeWidth={1.4} />
+              </span>
+              <div>
+                <h3>{title}</h3>
+                <p>{text}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+      <section id="cara-kerja" className="container-page marketplace-steps">
+        <div className="centered-heading">
+          <p className="section-kicker">Dari ide menjadi undangan</p>
+          <h2 className="display">Hanya tiga langkah mudah.</h2>
+          <p>
+            Lebih sedikit kerumitan. Lebih banyak waktu untuk hari bahagiamu.
           </p>
-          <ul className="my-7 space-y-3 text-sm">
+        </div>
+        <ol className="step-grid">
+          {[
+            {
+              icon: Layers3,
+              title: "Pilih template",
+              text: "Jelajahi koleksi dan coba preview desain yang kamu suka.",
+              href: "/templates",
+              link: "Temukan desain",
+            },
+            {
+              icon: PencilLine,
+              title: "Edit undangan",
+              text: "Sesuaikan nama, tanggal, lokasi, foto, dan cerita kalian.",
+              href: "#coba-editor",
+              link: "Coba live preview",
+            },
+            {
+              icon: Send,
+              title: "Bagikan",
+              text: "Publikasikan dan kirim tautan personal untuk para tamu.",
+              href: "/cara-kerja",
+              link: "Lihat cara kerja",
+            },
+          ].map(({ icon: Icon, title, text, href, link }, index) => (
+            <li key={title}>
+              <span className="step-number">0{index + 1}</span>
+              <span className="step-icon">
+                <Icon size={26} strokeWidth={1.4} />
+              </span>
+              <h3>{title}</h3>
+              <p>{text}</p>
+              <Link href={href}>
+                {link} <ArrowRight size={14} />
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </section>
+      <section className="container-page marketplace-editor">
+        <div className="editor-copy">
+          <p className="section-kicker">Sentuhan personal, hasil istimewa</p>
+          <h2 className="display">
+            Mudah diedit,
+            <br />
+            hasilnya luar biasa.
+          </h2>
+          <p>
+            Nama, cerita, dan detail kecil yang membuatnya menjadi milik kalian.
+            Coba ubah contoh di sebelah dan lihat undanganmu berubah langsung.
+          </p>
+          <ul>
             {[
               "Pratinjau langsung saat mengedit",
-              "Tautan personal untuk para tamu",
-              "RSVP dan ucapan dalam satu dashboard",
-            ].map((t) => (
-              <li key={t} className="flex gap-2">
-                <Check size={16} className="text-ring" />
-                {t}
+              "Foto, musik, dan cerita dalam satu undangan",
+              "RSVP dan ucapan tersimpan di dashboard",
+            ].map((text) => (
+              <li key={text}>
+                <Check size={15} />
+                {text}
               </li>
             ))}
           </ul>
           <Button asChild>
-            <Link href="/register">Buat undangan pertamamu</Link>
+            <Link href="/register">
+              Buat undangan pertamamu <ArrowRight size={15} />
+            </Link>
           </Button>
         </div>
+        <EditorShowcase />
       </section>
-      <section className="container-page section-space grid gap-10 md:grid-cols-[.7fr_1.3fr]">
+      <section className="container-page marketplace-faq">
         <div>
-          <h2 className="display text-4xl">
-            Sebelum kamu
+          <p className="section-kicker">Sebelum kamu mulai</p>
+          <h2 className="display">
+            Ada yang ingin
             <br />
-            memulai.
+            kamu tanyakan?
           </h2>
-          <p className="mt-4 text-sm leading-7 text-muted-foreground">
-            Hal-hal yang mungkin ingin kamu ketahui.
-          </p>
+          <p>Kenali cara kerja UndangKita dan temukan jawabanmu di sini.</p>
+          <Link href="/faq">
+            Semua pertanyaan <ArrowUpRight size={15} />
+          </Link>
         </div>
         <FAQ />
       </section>
-      <section className="bg-primary text-white">
-        <div className="container-page py-20 text-center">
-          <p className="mb-5 font-serif text-xl text-white/60">
-            Sebuah momen. Sebuah cerita.
-          </p>
-          <h2 className="display mx-auto max-w-2xl text-4xl sm:text-5xl">
-            Mulai Cerita Indahmu Bersama UndangKita
+      <section className="container-page marketplace-closing">
+        <Image
+          src="/images/wedding-floral.png"
+          alt=""
+          fill
+          sizes="(max-width: 768px) 100vw, 1280px"
+          className="closing-photo"
+        />
+        <div className="closing-shade" />
+        <div className="closing-copy">
+          <Heart size={29} strokeWidth={1.1} />
+          <h2 className="display">
+            Mulai cerita indahmu
+            <br />
+            bersama UndangKita.
           </h2>
-          <Button
-            asChild
-            className="mt-8 bg-secondary text-primary hover:bg-white"
-          >
-            <Link href="/templates">
-              Temukan template pilihanmu
-              <ArrowUpRight size={18} />
+          <p>
+            Temukan desain untuk setiap momen berharga.
+            <br />
+            Sekali beli, gunakan berkali-kali.
+          </p>
+          <Button asChild>
+            <Link href="#koleksi">
+              Jelajahi template sekarang <ArrowRight size={16} />
             </Link>
           </Button>
         </div>

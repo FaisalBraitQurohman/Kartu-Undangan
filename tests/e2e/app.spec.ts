@@ -89,7 +89,9 @@ async function login(page: Page, index = 0) {
 test("marketing, FAQ and four distinct template demos", async ({ page }) => {
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "Setiap Momen Indah, Layak Dikenang." }),
+    page.getByRole("heading", {
+      name: /Setiap momen indah,\s*layak dikenang\./i,
+    }),
   ).toBeVisible();
   await page
     .getByRole("main")
@@ -120,7 +122,9 @@ test("marketing, FAQ and four distinct template demos", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "Setiap Momen Indah, Layak Dikenang." }),
+    page.getByRole("heading", {
+      name: /Setiap momen indah,\s*layak dikenang\./i,
+    }),
   ).toBeVisible();
   expect(
     await page.evaluate(

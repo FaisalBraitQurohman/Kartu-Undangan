@@ -1,15 +1,15 @@
 import Link from "next/link";
-import { Flower2 } from "lucide-react";
+import { Heart } from "lucide-react";
 export function Footer() {
   return (
-    <footer className="border-t border-border py-12">
+    <footer className="marketplace-footer border-t border-border py-12">
       <div className="container-page grid gap-8 md:grid-cols-[2fr_1fr_1fr]">
         <div>
           <Link
             href="/"
             className="flex items-center gap-2 font-serif text-2xl"
           >
-            <Flower2 size={24} />
+            <Heart className="brand-heart" size={24} strokeWidth={1.3} />
             UndangKita
           </Link>
           <p className="mt-4 max-w-sm text-sm leading-7 text-muted-foreground">
