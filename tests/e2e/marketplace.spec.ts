@@ -1,22 +1,27 @@
 import { test, expect } from "@playwright/test";
 
-test("editorial hero has one live template, early mobile actions and reduced motion", async ({
+test("cinematic hero fills the viewport with the supplied image and accessible actions", async ({
   page,
 }) => {
   await page.goto("/");
   await expect(page.locator("h1")).toHaveCount(1);
   await expect(page.locator("h1")).toContainText("Lebih dari");
   await expect(page.locator("h1")).toContainText("Awal yang Indah.");
-  await expect(
-    page.locator(".editorial-showcase .marketplace-phone"),
-  ).toHaveCount(1);
-  await expect(
-    page.locator(".editorial-showcase .invite-cover.ivory"),
-  ).toBeVisible();
+  await expect(page.locator(".editorial-hero .marketplace-phone")).toHaveCount(
+    0,
+  );
+  await expect(page.locator(".editorial-showcase")).toHaveCount(0);
+  await expect(page.locator(".editorial-background-image")).toHaveAttribute(
+    "src",
+    /hero-mediterranean/,
+  );
+  await expect(page.locator(".editorial-ownership")).toHaveText(
+    "Sekali beli. Undangan tanpa batas. Tanpa langganan.",
+  );
   await expect
     .poll(() =>
       page
-        .locator(".editorial-scene-image")
+        .locator(".editorial-background-image")
         .evaluate(
           (image) =>
             (image as HTMLImageElement).complete &&
@@ -24,7 +29,7 @@ test("editorial hero has one live template, early mobile actions and reduced mot
         ),
     )
     .toBe(true);
-  for (const width of [320, 390, 768, 1024, 1440]) {
+  for (const width of [320, 390, 768, 1024, 1440, 1920]) {
     await page.setViewportSize({ width, height: 844 });
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
     expect(
@@ -32,6 +37,15 @@ test("editorial hero has one live template, early mobile actions and reduced mot
         () => document.documentElement.scrollWidth <= innerWidth,
       ),
     ).toBe(true);
+    const hero = await page.locator(".editorial-hero").boundingBox();
+    const background = await page
+      .locator(".editorial-background")
+      .boundingBox();
+    const navbar = await page.locator(".marketplace-nav").boundingBox();
+    expect(hero!.x).toBe(0);
+    expect(hero!.width).toBe(width);
+    expect(background).toEqual(hero);
+    expect(hero!.y).toBeCloseTo(navbar!.y + navbar!.height, 0);
     const lines = await page
       .locator(".editorial-heading span")
       .evaluateAll((nodes) =>
@@ -41,24 +55,24 @@ test("editorial hero has one live template, early mobile actions and reduced mot
         })),
       );
     expect(lines.every((line) => line.textWidth <= line.width + 1)).toBe(true);
-    if (width <= 390) {
-      const action = await page
-        .locator(".editorial-actions a")
-        .first()
-        .boundingBox();
-      expect(action!.y + action!.height).toBeLessThan(844);
-    }
+    const action = await page
+      .locator(".editorial-actions a")
+      .first()
+      .boundingBox();
+    expect(action!.y + action!.height).toBeLessThan(844);
   }
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await expect(page.locator(".editorial-phone-link")).toHaveCSS(
+  await expect(page.locator(".editorial-actions a").first()).toHaveCSS(
     "transition-duration",
     "0s",
   );
   await page
-    .getByRole("link", {
-      name: "Lihat demo undangan Minimalist Ivory",
-      exact: true,
-    })
+    .getByRole("link", { name: "Jelajahi Template", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/#koleksi$/);
+  await page
+    .locator(".editorial-actions")
+    .getByRole("link", { name: "Lihat Demo", exact: true })
     .click();
   await expect(page).toHaveURL(/\/demo\/minimalist-ivory$/);
 });

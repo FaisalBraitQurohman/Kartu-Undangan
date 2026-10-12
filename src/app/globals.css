@@ -113,40 +113,6 @@ p {
 .table-scroll {
   overflow-x: auto;
 }
-.hero-stationery {
-  position: relative;
-  min-height: 560px;
-  display: grid;
-  place-items: center;
-  background: #ede3d6;
-  border-radius: 48% 48% 5% 5%;
-  isolation: isolate;
-}
-.hero-stationery:before {
-  content: "";
-  position: absolute;
-  inset: 48px 38px;
-  background: #dfcdb5;
-  transform: rotate(-9deg);
-  box-shadow: 0 20px 50px #3b302b12;
-}
-.hero-stationery .invite-cover {
-  width: 310px;
-  min-height: 440px;
-  transform: rotate(5deg);
-  box-shadow: 0 28px 60px #3b302b28;
-}
-.hero-note {
-  position: absolute;
-  bottom: 18px;
-  right: -15px;
-  background: #fff;
-  padding: 16px 22px;
-  transform: rotate(-5deg);
-  border: 1px solid var(--border);
-  font-size: 12px;
-  box-shadow: 0 10px 35px #3b302b12;
-}
 .invite-cover {
   position: relative;
   overflow: hidden;
@@ -358,17 +324,6 @@ p {
   }
   .section-space {
     padding-block: 56px;
-  }
-  .hero-stationery {
-    min-height: 470px;
-    margin: 30px 10px;
-  }
-  .hero-stationery .invite-cover {
-    width: 270px;
-    min-height: 385px;
-  }
-  .hero-note {
-    right: -10px;
   }
   .invite-cover {
     min-height: 560px;

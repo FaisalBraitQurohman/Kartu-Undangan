@@ -1,6 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
-  ArrowDown,
   ArrowRight,
   Check,
   Diamond,
@@ -10,7 +10,6 @@ import {
   Send,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { HeroShowcase } from "./hero-showcase";
 
 const benefits = [
   {
@@ -38,6 +37,17 @@ const benefits = [
 export function HeroSection() {
   return (
     <section className="editorial-hero" aria-labelledby="hero-heading">
+      <div className="editorial-background" aria-hidden="true">
+        <Image
+          src="/images/hero-mediterranean.png"
+          alt=""
+          fill
+          preload
+          sizes="100vw"
+          className="editorial-background-image"
+        />
+      </div>
+      <div className="editorial-readability-overlay" aria-hidden="true" />
       <div className="editorial-hero-inner">
         <div className="editorial-content">
           <p className="editorial-eyebrow">
@@ -70,22 +80,10 @@ export function HeroSection() {
             </Button>
           </div>
           <p className="editorial-ownership">
-            <Check size={15} /> Satu kali beli. Undangan tanpa batas. Tanpa
+            <Check size={15} /> Sekali beli. Undangan tanpa batas. Tanpa
             langganan.
           </p>
-          <Link href="#koleksi" className="editorial-scroll">
-            <span className="scroll-rule" aria-hidden="true" />
-            <span>
-              Scroll untuk
-              <br />
-              jelajahi koleksi
-            </span>
-            <span className="scroll-arrow">
-              <ArrowDown size={17} />
-            </span>
-          </Link>
         </div>
-        <HeroShowcase />
       </div>
       <div className="editorial-benefits-wrap">
         <div className="editorial-benefits">

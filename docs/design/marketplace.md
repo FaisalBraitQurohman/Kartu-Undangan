@@ -6,7 +6,7 @@ The supplied Elegant Wedding Marketplace concept is the visual reference for the
 
 Ivory paper `#fffdf9`, warm ivory `#faf8f4`, champagne `#f0e3d3`, espresso `#302a25`, muted gold `#a77d50`, sage `#82917b`. Playfair Display carries the wedding stationery character; Plus Jakarta Sans handles navigation, forms and product information. Typography and spacing change for mobile screens.
 
-The updated opening composition uses the owner's Premium Editorial Hero brief: a left aligned four-line headline and one live invitation cover in a smartphone, against a warm arch/travertine/ivory-fabric scene. See editorial-hero.md for the current hero composition. The catalog follows immediately, then ownership benefits, the three step process, an interactive editor demonstration, FAQ and a floral closing banner. Statistics, ratings, popularity claims and unavailable navigation destinations are omitted.
+The updated opening composition uses the owner's Final Cinematic Hero brief: a left aligned four-line headline over the supplied Mediterranean wedding photograph, spanning the entire viewport width. Soft ivory gradients preserve readability and the continuous architectural scene. See editorial-hero.md for the current hero composition. The catalog follows immediately, then ownership benefits, the three step process, an interactive editor demonstration, FAQ and a floral closing banner. Statistics, ratings, popularity claims and unavailable navigation destinations are omitted.
 
 ## Functional behavior
 
