@@ -18,7 +18,7 @@ Final local readiness checks:
 - The development app returned HTTP 200 for home/login, displayed its database catalog, and its private invitation API returned HTTP 401 to an anonymous request.
 - Production dependency audit returned zero vulnerabilities. The previously recorded five development-tool advisories remain.
 
-GitHub Actions workflow is implemented with pinned official action commits, PostgreSQL 17 health checks, Node 24, required database suites and failure artifacts. **Remote publication and hosted execution are pending:** GitHub rejected the push because the current OAuth token lacks `workflow` scope; the authorization request timed out without a completed grant. No hosted CI run or new application PR is claimed. Source commits remain local on `feat/local-readiness`.
+GitHub Actions workflow is implemented with pinned official action commits, PostgreSQL 17 health checks, Node 24, required database suites and failure artifacts. GitHub authorization now includes the `workflow` scope. Branch `feat/local-readiness` is published in draft [PR #4](https://github.com/FaisalBraitQurohman/Kartu-Undangan/pull/4), targeting staging. Hosted CI has been triggered; its result is pending. No merge or production deployment has been performed.
 
 See README.md for the two-terminal local startup and docs/DEPLOYMENT.md for preview requirements. Super-board remains unused.
 
@@ -63,4 +63,4 @@ No real payment, live email delivery, live media upload or production deployment
 
 Onboarding is configured for GitHub Project “Kartu Undangan” #1 and base branch staging. Normal reviewed changes may merge automatically; money, authentication and Prisma schema/migration changes require a human. Database migration permission remains empty until a dedicated environment is configured. Sources are GitHub issues, past PRs and architecture. The first Codex wave halted before building issue #1 due to native Windows permissions and sandbox GitHub authentication. Launcher recovery and observed readiness are documented in docs/super-board/windows-launcher.md; the CI ticket remains unfinished until the resumed pipeline supplies evidence.
 
-**Stopped by user choice on 12 October 2026.** Future work proceeds directly through Codex. No board workers remain active; the stale claim and run lock were released, and the clean issue-1 worktree was removed without force. Its branch is retained. CI issue #1 remains open in Backlog and has no implementation PR. Tooling remains installed but will not be started automatically.
+**Stopped by user choice on 12 October 2026.** Future work proceeds directly through Codex. No board workers remain active; the stale claim and run lock were released, and the clean issue-1 worktree was removed without force. Its branch is retained. CI issue #1 remains open in Backlog; its implementation is included in draft PR #4 through the direct Codex workflow. Tooling remains installed but will not be started automatically.
