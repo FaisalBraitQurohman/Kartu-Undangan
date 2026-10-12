@@ -4,18 +4,36 @@
 
 The application is implemented from the supplied UndangKita specification. Initial commit `2482671` is pushed to GitHub on main, and staging has been created for super-board work. No production deployment has been performed. Production acceptance still requires configured services and verification against those services.
 
-| Phase | State |
-| --- | --- |
-| Architecture/database/auth | Implemented; local checks passed |
-| Design/marketing/catalog | Implemented; browser checks passed |
-| Dashboard/ownership/CRUD | Implemented; database/browser checks passed |
-| Template engine/editor | Four designs and editor implemented; browser checks passed |
-| Public invitation | Implemented; publication and access checks passed |
-| Guests/RSVP/wishes | Implemented; database/browser checks passed |
-| Admin | Implemented; authorization and price persistence checks passed |
-| Payments | Adapter, signed webhook, status reconciliation and ownership implemented; mocked provider boundary tested |
-| External integrations | Adapters implemented; live service verification pending |
-| Checks/deployment preparation | Local checks passed; setup documented; deployment pending |
+## Accepted finish scope
+
+The user chose **ready to run locally and prepared for deployment**, with no external service accounts yet. That local target is implemented on branch `feat/local-readiness`. A real development database and private local verification/reset email delivery are configured; no default user account exists. External payments, Cloudinary uploads, hosted email, distributed limits and telemetry remain pending account configuration.
+
+Final local readiness checks:
+
+- 36 unit tests passed, including local mail persistence, idempotency and refusal of local delivery in production/Vercel.
+- 14 real database integration tests passed on the dedicated Prisma Postgres/PGlite readiness database; only outbound service boundaries are mocked.
+- 6 Chromium workflows passed, adding registration, inbox verification, password reset and old-session revocation to the previous five workflows.
+- Lint, typecheck and production build passed. Final build had no tracing warnings; 35 server trace manifests contained zero environment/local-data/agent-tool files.
+- First-run setup generated the client, migrated and seeded a fresh database and wrote an ignored `.env.local`. Database stop was exercised on the separate verification database and preserved its data.
+- The development app returned HTTP 200 for home/login, displayed its database catalog, and its private invitation API returned HTTP 401 to an anonymous request.
+- Production dependency audit returned zero vulnerabilities. The previously recorded five development-tool advisories remain.
+
+GitHub Actions workflow is implemented with pinned official action commits, PostgreSQL 17 health checks, Node 24, required database suites and failure artifacts. **Remote publication and hosted execution are pending:** GitHub rejected the push because the current OAuth token lacks `workflow` scope; the authorization request timed out without a completed grant. No hosted CI run or new application PR is claimed. Source commits remain local on `feat/local-readiness`.
+
+See README.md for the two-terminal local startup and docs/DEPLOYMENT.md for preview requirements. Super-board remains unused.
+
+| Phase                         | State                                                                                                     |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Architecture/database/auth    | Implemented; local checks passed                                                                          |
+| Design/marketing/catalog      | Implemented; browser checks passed                                                                        |
+| Dashboard/ownership/CRUD      | Implemented; database/browser checks passed                                                               |
+| Template engine/editor        | Four designs and editor implemented; browser checks passed                                                |
+| Public invitation             | Implemented; publication and access checks passed                                                         |
+| Guests/RSVP/wishes            | Implemented; database/browser checks passed                                                               |
+| Admin                         | Implemented; authorization and price persistence checks passed                                            |
+| Payments                      | Adapter, signed webhook, status reconciliation and ownership implemented; mocked provider boundary tested |
+| External integrations         | Adapters implemented; live service verification pending                                                   |
+| Checks/deployment preparation | Local checks passed; setup documented; deployment pending                                                 |
 
 ## Verification actually performed
 

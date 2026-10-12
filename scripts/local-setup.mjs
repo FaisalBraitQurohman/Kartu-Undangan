@@ -97,6 +97,8 @@ async function main() {
         "--shadow-db-port",
         String(state.dbPort + 1),
       ]);
+      console.log("Sesi database lokal berakhir. Data tetap tersimpan.");
+      return;
     } else await run(cli, ["dev", "stop", state.name]);
     console.log(
       `Database lokal ${action === "stop" ? "dihentikan" : "dimulai"}. Data tetap tersimpan.`,
