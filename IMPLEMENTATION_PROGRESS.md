@@ -22,6 +22,10 @@ GitHub Actions workflow is implemented with pinned official action commits, Post
 
 See README.md for the two-terminal local startup and docs/DEPLOYMENT.md for preview requirements. Super-board remains unused.
 
+## Vercel setup — 12 October 2026
+
+The owner authorized Vercel setup. Project `undangkita` now has a protected Preview deployment, a dedicated Neon database with both migrations and four seeded templates, and Upstash Redis. Database and Redis health checks passed; the hosted homepage returned 200 and anonymous private invitation API returned 401. Preview secrets and its fixed origin are configured. Cloudinary API provisioning and ping succeeded; the owner confirmed the account claim and email verification. GitHub repository linking succeeded on retry, with main as the Production branch. The initial unexpected Production-target build was canceled; no production launch is complete. Domain/Resend, Midtrans, Cloudinary application upload acceptance, queue scheduling and production setup remain pending. Details are recorded in docs/DEPLOYMENT.md.
+
 | Phase                         | State                                                                                                     |
 | ----------------------------- | --------------------------------------------------------------------------------------------------------- |
 | Architecture/database/auth    | Implemented; local checks passed                                                                          |

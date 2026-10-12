@@ -2,6 +2,26 @@
 
 The local development target is ready. This document describes the remaining preview/production work; it does not claim those external accounts have been tested.
 
+## Hosting target
+
+The owner selected **Vercel** for deployment. Use the Next.js framework preset and configure environment variables separately for Preview and Production. Preview must use sandbox payment credentials and a dedicated preview database. Hosted PostgreSQL, Cloudinary, Resend and Upstash remain external services; the local database and local mail inbox are development tools only.
+
+Configure the deployed origin, payment webhook and authenticated email queue schedule before preview acceptance. Prepare migrations separately from concurrent application builds. The owner authorized Vercel setup; current work prepares Preview without launching a commercial production service. See [Vercel Next.js documentation](https://vercel.com/docs/frameworks/full-stack/nextjs) and [environment variables](https://vercel.com/docs/environment-variables).
+
+### Setup performed — 12 October 2026
+
+- Created and linked project `undangkita` under `faisals-projects-bb6b5518`, using Node 24, `npm ci`, `npm run build` and function region `sin1`.
+- Provisioned Neon `undangkita-preview-db` and Upstash `undangkita-preview-redis`, free plans in Singapore, connected only to Preview. Redis automatic paid upgrades are disabled.
+- Applied both migrations to the new preview database and seeded four templates. Database query and Redis ping succeeded.
+- Configured Preview authentication/cron secrets, Redis variable aliases, sandbox payment mode and the fixed Preview origin. Secret values are excluded from source control.
+- Published a protected Preview at https://undangkita-preview-faisals-projects-bb6b5518.vercel.app. Initial homepage check returned 200; anonymous private invitation API returned 401 using authenticated Vercel deployment-protection access.
+- Provisioned a claimable Cloudinary environment, saved its credentials to Preview and confirmed its API ping. The owner confirmed claiming the account and verifying its email on 12 October 2026. Application upload/delete acceptance remains pending.
+- The first deployment was unexpectedly classified as Production despite requesting Preview; it was canceled during build. Subsequent deployments are Preview. No production launch has been completed.
+
+GitHub repository linking initially returned a Vercel internal error; retry succeeded. The connected repository is `FaisalBraitQurohman/Kartu-Undangan`, with `main` as the Production branch. Feature/staging pushes trigger Preview builds. Only Preview services are configured; do not merge into/push main for launch until Production configuration and acceptance are complete.
+
+Pending: Cloudinary application upload/delete verification, domain ownership and Resend sender verification, Midtrans account/sandbox verification, email queue scheduler, and production environment configuration. Email delivery remains disabled until a verified sender is available; registration/email acceptance is not complete. The current Vercel Hobby plan permits personal non-commercial use only; commercial launch requires an appropriate plan ([Vercel Hobby documentation](https://vercel.com/docs/plans/hobby)).
+
 ## Environment and database
 
 1. Provision a dedicated managed PostgreSQL preview database and separate disposable test database. Do not reuse a production database for tests.
@@ -11,7 +31,7 @@ The local development target is ready. This document describes the remaining pre
 5. Configure Upstash rate-limit variables; production mutations fail closed without them. Configure Cloudinary and sandbox Midtrans keys. Enable Sentry only after setting the appropriate server/public DSNs.
 6. Configure CRON_SECRET and schedule GET `/api/cron/email` with its bearer authorization. Keys remain server-only except explicitly public variables in `.env.example`.
 
-Use Vercel's Next.js preset and `npm run build`. No deployment has been performed. Deploy only after the owner authorizes the target account and environment.
+Use Vercel's Next.js preset and `npm run build`. Preview setup is recorded above. Production configuration and service acceptance remain outstanding.
 
 ## Preview acceptance
 
