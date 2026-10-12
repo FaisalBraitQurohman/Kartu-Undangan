@@ -1,0 +1,2 @@
+ALTER TABLE "Media" ADD COLUMN "bytes" INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE "Media" ADD CONSTRAINT "Media_bytes_check" CHECK ("bytes" >= 0);
