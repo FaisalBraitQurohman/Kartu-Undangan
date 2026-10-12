@@ -18,3 +18,8 @@ test-results/
 .claude/settings.json.bak-*
 .worktrees/
 .claude/worktrees/
+__pycache__/
+.claude/super-board/github-halt*.json
+.claude/super-board/codex-wave.pid
+.claude/super-board/tools/
+.claude/super-board/cache/

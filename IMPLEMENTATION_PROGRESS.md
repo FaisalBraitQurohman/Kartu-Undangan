@@ -43,4 +43,4 @@ No real payment, live email delivery, live media upload or production deployment
 
 ## Super-board
 
-Onboarding is configured for GitHub Project “Kartu Undangan” #1 and base branch staging. Normal reviewed changes may merge automatically; money, authentication and Prisma schema/migration changes require a human. Database migration permission remains empty until a dedicated environment is configured. Sources are GitHub issues, past PRs and architecture. No autonomous board worker has been started.
+Onboarding is configured for GitHub Project “Kartu Undangan” #1 and base branch staging. Normal reviewed changes may merge automatically; money, authentication and Prisma schema/migration changes require a human. Database migration permission remains empty until a dedicated environment is configured. Sources are GitHub issues, past PRs and architecture. The first Codex wave halted before building issue #1 due to native Windows permissions and sandbox GitHub authentication. Launcher recovery and observed readiness are documented in docs/super-board/windows-launcher.md; the CI ticket remains unfinished until the resumed pipeline supplies evidence.
