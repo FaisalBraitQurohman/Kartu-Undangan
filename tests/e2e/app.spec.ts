@@ -90,7 +90,7 @@ test("marketing, FAQ and four distinct template demos", async ({ page }) => {
   await page.goto("/");
   await expect(
     page.getByRole("heading", {
-      name: /Setiap momen indah,\s*layak dikenang\./i,
+      name: /Lebih dari.*Sekadar Undangan,.*Awal yang Indah\./i,
     }),
   ).toBeVisible();
   await page
@@ -123,7 +123,7 @@ test("marketing, FAQ and four distinct template demos", async ({ page }) => {
   await page.goto("/");
   await expect(
     page.getByRole("heading", {
-      name: /Setiap momen indah,\s*layak dikenang\./i,
+      name: /Lebih dari.*Sekadar Undangan,.*Awal yang Indah\./i,
     }),
   ).toBeVisible();
   expect(

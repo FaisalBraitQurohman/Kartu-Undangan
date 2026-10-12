@@ -9,116 +9,20 @@ import {
   Infinity as InfinityIcon,
   Layers3,
   PencilLine,
-  Play,
   Send,
   ShieldCheck,
   Smartphone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PhoneMockup } from "@/components/marketing/phone-mockup";
+import { HeroSection } from "@/components/marketing/hero-section";
 import { EditorShowcase } from "@/components/marketing/editor-showcase";
 import { Catalog } from "@/components/marketing/catalog";
 import { FAQ } from "@/components/marketing/faq";
 export const dynamic = "force-dynamic";
-const benefits = [
-  {
-    icon: Diamond,
-    title: "Desain premium",
-    text: "Detail yang dipilih dengan hati.",
-  },
-  { icon: InfinityIcon, title: "Sekali beli", text: "Gunakan selamanya." },
-  {
-    icon: PencilLine,
-    title: "Mudah dikustomisasi",
-    text: "Buat jadi cerita kalian.",
-  },
-  {
-    icon: Send,
-    title: "Bagikan dengan mudah",
-    text: "Satu tautan, banyak kenangan.",
-  },
-];
 export default function Home() {
   return (
     <main id="main" className="marketplace-home">
-      <section className="marketplace-hero container-page">
-        <div className="hero-layout">
-          <div className="hero-copy">
-            <p className="hero-label">Undangan digital untuk momen spesial</p>
-            <h1 className="display">
-              Setiap momen indah,
-              <br />
-              layak dikenang.
-            </h1>
-            <p className="hero-description">
-              Buat undangan digital yang elegan dan personal.
-              <br className="hidden lg:block" /> Pilih desain favorit, edit
-              sesukamu, lalu bagikan dengan mudah.
-            </p>
-            <div className="hero-actions">
-              <Button asChild size="lg">
-                <Link href="#koleksi">
-                  Jelajahi template <ArrowRight size={16} />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline">
-                <Link href="/demo/minimalist-ivory">
-                  Lihat demo <Play size={13} />
-                </Link>
-              </Button>
-            </div>
-            <p className="hero-ownership">
-              <Check size={14} /> Sekali beli, gunakan selamanya. Tanpa
-              langganan.
-            </p>
-          </div>
-          <div className="hero-phones">
-            <div className="hero-arch" aria-hidden="true" />
-            <p className="hero-handwritten">
-              Desain elegan
-              <br />
-              untuk setiap cerita <Heart size={13} />
-            </p>
-            <Link
-              className="hero-phone hero-phone-left"
-              href="/demo/romantic-bloom"
-              aria-label="Lihat demo Romantic Bloom"
-            >
-              <PhoneMockup templateKey="romantic-bloom" />
-            </Link>
-            <Link
-              className="hero-phone hero-phone-right"
-              href="/demo/emerald-garden"
-              aria-label="Lihat demo Emerald Garden"
-            >
-              <PhoneMockup templateKey="emerald-garden" accent="#dbc29b" />
-            </Link>
-            <Link
-              className="hero-phone hero-phone-center"
-              href="/demo/minimalist-ivory"
-              aria-label="Lihat demo Minimalist Ivory"
-            >
-              <PhoneMockup templateKey="minimalist-ivory" />
-            </Link>
-            <span className="hero-collection-note">
-              Tiga desain, satu cerita yang istimewa.
-            </span>
-          </div>
-        </div>
-        <div className="hero-benefits">
-          {benefits.map(({ icon: Icon, title, text }) => (
-            <div key={title}>
-              <span className="benefit-icon">
-                <Icon size={20} strokeWidth={1.5} />
-              </span>
-              <p>
-                <strong>{title}</strong>
-                <span>{text}</span>
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <HeroSection />
       <section id="koleksi" className="container-page marketplace-collection">
         <div className="marketplace-section-heading">
           <div>

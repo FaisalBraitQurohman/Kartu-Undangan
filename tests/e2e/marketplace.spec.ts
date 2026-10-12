@@ -1,5 +1,68 @@
 import { test, expect } from "@playwright/test";
 
+test("editorial hero has one live template, early mobile actions and reduced motion", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.locator("h1")).toHaveCount(1);
+  await expect(page.locator("h1")).toContainText("Lebih dari");
+  await expect(page.locator("h1")).toContainText("Awal yang Indah.");
+  await expect(
+    page.locator(".editorial-showcase .marketplace-phone"),
+  ).toHaveCount(1);
+  await expect(
+    page.locator(".editorial-showcase .invite-cover.ivory"),
+  ).toBeVisible();
+  await expect
+    .poll(() =>
+      page
+        .locator(".editorial-scene-image")
+        .evaluate(
+          (image) =>
+            (image as HTMLImageElement).complete &&
+            (image as HTMLImageElement).naturalWidth > 0,
+        ),
+    )
+    .toBe(true);
+  for (const width of [320, 390, 768, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    const lines = await page
+      .locator(".editorial-heading span")
+      .evaluateAll((nodes) =>
+        nodes.map((node) => ({
+          width: node.getBoundingClientRect().width,
+          textWidth: node.scrollWidth,
+        })),
+      );
+    expect(lines.every((line) => line.textWidth <= line.width + 1)).toBe(true);
+    if (width <= 390) {
+      const action = await page
+        .locator(".editorial-actions a")
+        .first()
+        .boundingBox();
+      expect(action!.y + action!.height).toBeLessThan(844);
+    }
+  }
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(page.locator(".editorial-phone-link")).toHaveCSS(
+    "transition-duration",
+    "0s",
+  );
+  await page
+    .getByRole("link", {
+      name: "Lihat demo undangan Minimalist Ivory",
+      exact: true,
+    })
+    .click();
+  await expect(page).toHaveURL(/\/demo\/minimalist-ivory$/);
+});
+
 test("catalog searches real templates, combines filters and previews the chosen accent", async ({
   page,
 }) => {
