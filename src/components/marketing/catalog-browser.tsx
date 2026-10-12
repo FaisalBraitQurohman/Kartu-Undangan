@@ -1,5 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { LayoutGroup, motion, useAnimate } from "motion/react";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import Link from "next/link";
 import { ArrowUpRight, Search, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,13 +14,19 @@ import {
   type CatalogTemplate,
 } from "./template-presentation";
 function TemplateCard({ template }: { template: CatalogTemplate }) {
+  const reduceMotion = usePrefersReducedMotion();
   const presentation = templatePresentation[template.key];
   const [accent, setAccent] = useState(
     presentation?.palette[0]?.value || "#b59a75",
   );
   const demoHref = `/demo/${template.key}?accent=${encodeURIComponent(accent)}`;
   return (
-    <article className="marketplace-card">
+    <motion.article
+      className="marketplace-card"
+      layout={reduceMotion ? false : "position"}
+      initial={false}
+      transition={{ layout: { duration: 0.24, ease: [0.22, 1, 0.36, 1] } }}
+    >
       <Link
         href={demoHref}
         className={`card-stage stage-${presentation?.surface || "ivory"}`}
@@ -79,7 +87,7 @@ function TemplateCard({ template }: { template: CatalogTemplate }) {
           </Button>
         </div>
       </div>
-    </article>
+    </motion.article>
   );
 }
 export function CatalogBrowser({
@@ -87,6 +95,9 @@ export function CatalogBrowser({
 }: {
   templates: CatalogTemplate[];
 }) {
+  const filterGroup = useId();
+  const reduceMotion = usePrefersReducedMotion();
+  const [scope, animate] = useAnimate();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
   const [style, setStyle] = useState("");
@@ -125,6 +136,19 @@ export function CatalogBrowser({
     );
   });
   const hasFilters = !!(query || category || style || color || price);
+  const resultKey = filtered.map((template) => template.id).join(",");
+  const previousResults = useRef(resultKey);
+  useEffect(() => {
+    const changed = previousResults.current !== resultKey;
+    previousResults.current = resultKey;
+    if (!changed || !resultKey || reduceMotion) return;
+    const animation = animate(
+      ".marketplace-card",
+      { opacity: [0.65, 1] },
+      { duration: 0.22, ease: [0.22, 1, 0.36, 1] },
+    );
+    return () => animation.cancel();
+  }, [animate, reduceMotion, resultKey]);
   const reset = () => {
     setQuery("");
     setCategory("");
@@ -133,7 +157,7 @@ export function CatalogBrowser({
     setPrice("");
   };
   return (
-    <div className="catalog-browser">
+    <div ref={scope} className="catalog-browser">
       <div className="catalog-controls" id="pencarian-template">
         <div className="catalog-search-row">
           <label className="catalog-search">
@@ -165,16 +189,30 @@ export function CatalogBrowser({
         </div>
         <div className="catalog-filter-row">
           <div className="style-filters" role="group" aria-label="Gaya desain">
-            {["", ...styles].map((s) => (
-              <button
-                type="button"
-                key={s}
-                aria-pressed={style === s}
-                onClick={() => setStyle(s)}
-              >
-                {s || "Semua"}
-              </button>
-            ))}
+            <LayoutGroup id={filterGroup}>
+              {["", ...styles].map((s) => (
+                <button
+                  type="button"
+                  key={s}
+                  aria-pressed={style === s}
+                  onClick={() => setStyle(s)}
+                >
+                  {style === s && (
+                    <motion.span
+                      className="style-filter-indicator"
+                      layoutId="selected-style"
+                      initial={false}
+                      transition={{
+                        duration: reduceMotion ? 0 : 0.22,
+                        ease: [0.22, 1, 0.36, 1],
+                      }}
+                      aria-hidden="true"
+                    />
+                  )}
+                  {s || "Semua"}
+                </button>
+              ))}
+            </LayoutGroup>
           </div>
           <div className="catalog-selects">
             <label>

@@ -13,7 +13,7 @@ Implemented from the owner's Final Cinematic Hero brief using the supplied Medit
 
 ## Implementation
 
-`src/components/marketing/hero-section.tsx` owns content, actions, the full-section background and benefit row. `src/app/editorial-hero.css` scopes layout and responsive image treatment. The component is server rendered, with no new dependency or client component.
+`src/components/marketing/hero-section.tsx` owns content, actions, the full-section background and benefit row. `src/app/editorial-hero.css` scopes layout and responsive image treatment. Content remains server rendered; the landing motion wrapper adds client-side choreography using the existing Motion dependency.
 
 Next.js Image uses `fill`, `preload` and `sizes="100vw"`. The reserved hero dimensions prevent image-driven layout shifts. An empty alt and hidden decorative wrapper keep the atmospheric photograph out of the accessibility tree. The former isolated scene component, generated backdrop and unused legacy hero styles were removed.
 

@@ -290,6 +290,8 @@
   gap: 6px;
 }
 .style-filters button {
+  position: relative;
+  isolation: isolate;
   min-height: 35px;
   padding: 8px 13px;
   background: #f6f4f1;
@@ -300,6 +302,14 @@
 }
 .style-filters button[aria-pressed="true"] {
   color: #fff;
+  background: transparent;
+}
+.style-filter-indicator {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
   background: #6d533b;
 }
 .style-filters button:hover {
@@ -390,9 +400,6 @@
     inset 0 0 0 4px #151413,
     10px 14px 20px #3b302b38;
   transition: transform 0.25s ease;
-}
-.card-stage:hover .card-phone {
-  transform: rotate(0) translateY(5px);
 }
 .card-phone .phone-island {
   width: 43px;

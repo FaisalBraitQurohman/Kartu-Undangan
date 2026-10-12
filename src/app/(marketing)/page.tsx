@@ -18,10 +18,11 @@ import { HeroSection } from "@/components/marketing/hero-section";
 import { EditorShowcase } from "@/components/marketing/editor-showcase";
 import { Catalog } from "@/components/marketing/catalog";
 import { FAQ } from "@/components/marketing/faq";
+import { LandingMotion } from "@/components/marketing/landing-motion";
 export const dynamic = "force-dynamic";
 export default function Home() {
   return (
-    <main id="main" className="marketplace-home">
+    <LandingMotion>
       <HeroSection />
       <section id="koleksi" className="container-page marketplace-collection">
         <div className="marketplace-section-heading">
@@ -203,6 +204,6 @@ export default function Home() {
           </Button>
         </div>
       </section>
-    </main>
+    </LandingMotion>
   );
 }

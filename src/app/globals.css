@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "./marketplace.css";
 @import "./editorial-hero.css";
+@import "./marketing-motion.css";
 :root {
   --background: #faf8f4;
   --foreground: #3b302b;
