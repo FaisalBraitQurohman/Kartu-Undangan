@@ -26,8 +26,13 @@ export async function sendEmail(
   key?: string,
 ) {
   assertEmailConfigured();
-  if (process.env.EMAIL_TRANSPORT === "local") {
-    const directory = resolve(process.env.LOCAL_MAIL_DIR || ".local/mail");
+  if (
+    process.env.NODE_ENV !== "production" &&
+    process.env.EMAIL_TRANSPORT === "local"
+  ) {
+    const directory = resolve(
+      /* turbopackIgnore: true */ process.env.LOCAL_MAIL_DIR || ".local/mail",
+    );
     await mkdir(directory, { recursive: true, mode: 0o700 });
     const name = key
       ? createHash("sha256").update(key).digest("hex")

@@ -36,7 +36,7 @@ npm run local:setup
 npm run dev
 ```
 
-Open `http://localhost:3000`. The setup creates a named Prisma Postgres development database, applies both migrations, seeds the four templates and writes an ignored `.env.local` with a random AUTH_SECRET. It refuses to overwrite existing environment files or use occupied ports. No default user/admin password is created. The database uses loopback development ports 51420–51422; keep these local and use a managed PostgreSQL database for deployment.
+Open `http://localhost:3000`. `local:db` starts a named Prisma Postgres development database; `local:setup` applies both migrations, seeds the four templates and writes an ignored `.env.local` with a random AUTH_SECRET. It refuses to overwrite existing environment files or use occupied ports. No default user/admin password is created. The database uses loopback development ports 51420–51422; keep these local and use a managed PostgreSQL database for deployment.
 
 Register your own account, then run `npm run local:inbox`. Open the newest text email under `.local/mail` and follow its verification link in the browser. This inbox is a real local delivery transport, clearly marked as development; messages are not delivered to an internet mailbox. Reset-password and queued notifications also use it. Local delivery is refused in production and hosted Vercel environments. Inbox messages contain private account links; do not share them or commit the directory.
 
