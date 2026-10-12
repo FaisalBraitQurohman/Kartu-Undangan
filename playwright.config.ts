@@ -2,10 +2,12 @@ import { defineConfig, devices } from "@playwright/test";
 import { randomBytes } from "node:crypto";
 import { resolve } from "node:path";
 const origin = "http://localhost:3100";
-const mailDirectory = resolve(
-  ".local",
-  `browser-mail-${randomBytes(8).toString("hex")}`,
-);
+const mailDirectory =
+  process.env.PLAYWRIGHT_MAIL_DIR ||
+  resolve(".local", `browser-mail-${randomBytes(8).toString("hex")}`);
+if (!resolve(mailDirectory).startsWith(resolve(".local", "browser-mail-")))
+  throw new Error("Browser mailbox must be an isolated fixture directory.");
+process.env.PLAYWRIGHT_MAIL_DIR = mailDirectory;
 process.env.LOCAL_MAIL_DIR = mailDirectory;
 if (
   process.env.REQUIRE_DATABASE_TESTS === "true" &&
